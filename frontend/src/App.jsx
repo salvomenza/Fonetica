@@ -1,5 +1,9 @@
+// Laboratorio di fonetica italiana - frontend
+// v0.3.0
+
 import { useState, useRef } from "react";
 
+const VERSION = "v0.3.0";
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const SYMS = {
@@ -34,6 +38,7 @@ const s = {
   solIpa: { fontFamily: "'Courier New', monospace", fontSize: 14, background: "#f5f5f5", padding: "10px 14px", borderRadius: 8, display: "block", wordBreak: "break-all", lineHeight: 1.7, marginBottom: 14 },
   errTag: { display: "inline-block", fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "#fff0ec", color: "#c0391b", marginBottom: 4, fontFamily: "system-ui" },
   unavail: { fontFamily: "system-ui", fontSize: 13, color: "#7a4a00", background: "#fffbe6", border: "1px solid #ffe58f", borderRadius: 8, padding: "10px 14px", marginTop: 8 },
+  footer: { fontFamily: "system-ui", fontSize: 11, color: "#ccc", textAlign: "center", marginTop: 32, paddingTop: 16, borderTop: "1px solid #f0f0f0" },
   srcBadge: (src) => ({
     display: "inline-block", fontSize: 10, padding: "1px 6px", borderRadius: 3, marginLeft: 6, fontFamily: "system-ui",
     background: src === "wiktionary" ? "#e8f4e8" : src === "utente" ? "#f0f0f0" : "#e8eef8",
@@ -97,7 +102,6 @@ export default function App() {
   const [infoParole, setInfoParole] = useState([]);
   const [needsInput, setNeedsInput] = useState([]);
   const [userChoices, setUserChoices] = useState({});
-  const [lookupLoading, setLookupLoading] = useState(false);
 
   const [ipaValue, setIpaValue] = useState("");
   const [feedback, setFeedback] = useState(null);
@@ -137,7 +141,6 @@ export default function App() {
   }
 
   async function doLookup(f) {
-    setLookupLoading(true);
     setPage(1);
     const words = f.match(/[a-zA-ZÀ-ù]+/g) || [];
     const unique = [...new Set(words.map(w => w.toLowerCase()))];
@@ -155,18 +158,19 @@ export default function App() {
       setGenMsg("Errore lookup: " + e.message);
       setPage(0);
     }
-    setLookupLoading(false);
+  }
+
+  // No longer required to fill all choices — missing = n/a
+  function getEffectiveChoices() {
+    const effective = {};
+    needsInput.forEach(word => {
+      effective[word] = userChoices[word] || { v: "n/a", sz: "n/a" };
+    });
+    return effective;
   }
 
   function setChoice(word, key, val) {
     setUserChoices(prev => ({ ...prev, [word]: { ...(prev[word] || {}), [key]: val } }));
-  }
-
-  function allChoicesDone() {
-    return needsInput.every(word => {
-      const ch = userChoices[word] || {};
-      return ch.v !== undefined && ch.sz !== undefined;
-    });
   }
 
   async function verifica() {
@@ -175,15 +179,11 @@ export default function App() {
     try {
       const data = await apiFetch("/api/verify", {
         frase, trascrizione: ipaValue.trim(),
-        info_parole: infoParole, user_choices: userChoices,
+        info_parole: infoParole, user_choices: getEffectiveChoices(),
       });
       setFeedback({ data, soloSol: false });
     } catch (e) {
-      if (e.message === "service_unavailable") {
-        setFeedback({ unavail: true });
-      } else {
-        setFeedback({ error: e.message });
-      }
+      setFeedback(e.message === "service_unavailable" ? { unavail: true } : { error: e.message });
     }
     setFbLoading(false);
   }
@@ -192,15 +192,11 @@ export default function App() {
     setFbLoading(true); setFeedback(null);
     try {
       const data = await apiFetch("/api/solution", {
-        frase, info_parole: infoParole, user_choices: userChoices,
+        frase, info_parole: infoParole, user_choices: getEffectiveChoices(),
       });
       setFeedback({ data, soloSol: true });
     } catch (e) {
-      if (e.message === "service_unavailable") {
-        setFeedback({ unavail: true });
-      } else {
-        setFeedback({ error: e.message });
-      }
+      setFeedback(e.message === "service_unavailable" ? { unavail: true } : { error: e.message });
     }
     setFbLoading(false);
   }
@@ -222,7 +218,8 @@ export default function App() {
       if (info.has_voiceless_z) pp.push("z→ts");
       if (pp.length) items.push({ word: info.word, src: info.source, pp });
     });
-    Object.entries(userChoices).forEach(([w, ch]) => {
+    const eff = getEffectiveChoices();
+    Object.entries(eff).forEach(([w, ch]) => {
       const pp = [];
       if (ch.v && ch.v !== "n/a") pp.push(`vocale→${ch.v}`);
       if (ch.sz && ch.sz !== "n/a") pp.push(`sz→${ch.sz}`);
@@ -276,7 +273,7 @@ export default function App() {
         </div>
       )}
 
-      {/* PAGE 2: input utente */}
+      {/* PAGE 2: input utente per parole non trovate */}
       {page === 2 && (
         <>
           <div style={s.card}>
@@ -286,7 +283,7 @@ export default function App() {
           <div style={s.card}>
             <span style={s.lbl}>Informazioni mancanti dal dizionario</span>
             <p style={{ fontFamily: "system-ui", fontSize: 13, color: "#888", marginBottom: 14 }}>
-              Per le seguenti parole non è stato possibile trovare informazioni. Specifica tu:
+              Per le seguenti parole non è stato possibile trovare informazioni. Se non selezioni nulla, verrà assunto n/a.
             </p>
             {needsInput.map(word => {
               const ch = userChoices[word] || {};
@@ -296,14 +293,16 @@ export default function App() {
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                       <span style={{ fontSize: 12, color: "#999", fontFamily: "system-ui", minWidth: 110 }}>vocale tonica e/o</span>
-                      {[["e","e chiusa"],["ɛ","ɛ aperta"],["o","o chiusa"],["ɔ","ɔ aperta"],["n/a","n/a"]].map(([val,lab]) => (
-                        <button key={val} onClick={() => setChoice(word, "v", val)} style={ch.v === val ? cbtnSel : cbtn}>{lab}</button>
+                      {[["e","e chiusa"],["ɛ","ɛ aperta"],["o","o chiusa"],["ɔ","ɔ aperta"]].map(([val,lab]) => (
+                        <button key={val} onClick={() => setChoice(word, "v", ch.v === val ? undefined : val)}
+                          style={ch.v === val ? cbtnSel : cbtn}>{lab}</button>
                       ))}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                       <span style={{ fontSize: 12, color: "#999", fontFamily: "system-ui", minWidth: 110 }}>s/z intervocalica</span>
-                      {[["s","s sorda"],["z","z sonora"],["ts","ts sorda"],["dz","dz sonora"],["n/a","n/a"]].map(([val,lab]) => (
-                        <button key={val} onClick={() => setChoice(word, "sz", val)} style={ch.sz === val ? cbtnSel : cbtn}>{lab}</button>
+                      {[["s","s sorda"],["z","z sonora"],["ts","ts sorda"],["dz","dz sonora"]].map(([val,lab]) => (
+                        <button key={val} onClick={() => setChoice(word, "sz", ch.sz === val ? undefined : val)}
+                          style={ch.sz === val ? cbtnSel : cbtn}>{lab}</button>
                       ))}
                     </div>
                   </div>
@@ -311,7 +310,7 @@ export default function App() {
               );
             })}
             <div style={{ marginTop: 16 }}>
-              <Btn primary disabled={!allChoicesDone()} onClick={() => { setIpaValue(""); setFeedback(null); setPage(3); }}>
+              <Btn primary onClick={() => { setIpaValue(""); setFeedback(null); setPage(3); }}>
                 Prosegui →
               </Btn>
             </div>
@@ -362,10 +361,7 @@ export default function App() {
             </div>
           )}
 
-          {feedback?.unavail && (
-            <div style={s.unavail}>{MSG_VERIFY_UNAVAILABLE}</div>
-          )}
-
+          {feedback?.unavail && <div style={s.unavail}>{MSG_VERIFY_UNAVAILABLE}</div>}
           {feedback?.error && (
             <div style={{ ...s.card, color: "#c0391b", fontFamily: "system-ui", fontSize: 13 }}>
               Errore: {feedback.error}
@@ -384,13 +380,11 @@ export default function App() {
                 )}
                 <span style={s.lbl}>Trascrizione corretta</span>
                 <code style={s.solIpa}>{r.trascrizione_corretta}</code>
-
                 {r.context?.length > 0 && (
                   <div style={{ fontSize: 12, color: "#bbb", fontFamily: "system-ui", marginBottom: 14 }}>
                     {r.context.join(" · ")}
                   </div>
                 )}
-
                 {!soloSol && r.errori?.length > 0 && (
                   <>
                     <span style={s.lbl}>Errori ({r.errori.length})</span>
@@ -428,6 +422,8 @@ export default function App() {
           })()}
         </>
       )}
+
+      <div style={s.footer}>Laboratorio di fonetica italiana · {VERSION}</div>
     </div>
   );
 }
