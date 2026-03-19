@@ -1,3 +1,6 @@
+# Laboratorio di fonetica italiana - backend
+# v0.3.0
+
 import os
 import re
 import json
@@ -67,22 +70,25 @@ CONVENZIONI OBBLIGATORIE:
 - Sillabe separate da punto .
 - Accento primario ˈ su tutte le parole polisillabiche (incluse parole grammaticali polisillabiche)
 - Clitici monosillabici (articoli det. monosill., preposizioni semplici monosill., pronomi clitici): nessun accento primario, possono ricevere ˌ
+- VERBI monosillabici (ho, ha, è, ecc.) e nomi/aggettivi monosillabici: SEMPRE accentati con ˈ
 - Accento secondario ˌ per valli accentuali (3+ sillabe atone consecutive tra due accenti primari)
 - Scontro accentuale: la prima tonica perde l'accento, nessun simbolo aggiunto
 - Frase come parola continua salvo virgola e punto che introducono pausa
 - SILLABAZIONE CROSS-WORD: i confini di sillaba tra parole seguono le stesse regole dell'interno di parola, come se la frase fosse una sola lunga parola
 - S IMPURA (s + consonante): la s si attacca alla sillaba precedente se esiste un nucleo vocalico: es. man.dʒas.ˈpes.so non man.dʒa.ˈspes.so
-- GEMINATE: tutte le consonanti lunghe (sia geminate ortografiche che autogeminazioni) si dividono tra le due sillabe: es. ˈpeʃ.ʃe, ˈgat.to, ˈbel.lo, ˈspes.so
-- Due vocali atone contigue tra parole si fondono in una sola sillaba: es. ˈdor.meim.ˈba.ɲɲo
-- Vocali atone: sempre e o chiuse
+- GEMINATE: tutte le consonanti lunghe si dividono tra le due sillabe: es. ˈpeʃ.ʃe, ˈgat.to, ˈbel.lo
+- Due vocali atone contigue tra parole si fondono in una sola sillaba: es. ˈpɔs.sauʃ.ˈʃiː.re (possa uscire)
+- Vocali atone: sempre e o chiuse, indipendentemente dalla qualità nella parola base (es. veloce→velocemente: tutte le vocali non toniche diventano chiuse)
+- Vocali toniche in sillaba aperta: sono lunghe (es. pa.ˈuː.ra, ˈiː in uscire)
+- DITTONGHI e IATO: au, ai, eu ecc. con approssimante quando la prima vocale è atona; pa.ˈuː.ra è iato (u tonica), ˈpaw.sa è dittongo (a tonica)
 - AUTOGEMINAZIONE: ʃ→ʃʃ, ʎ→ʎʎ, ɲ→ɲɲ, ts→tts, dz→ddz SEMPRE (anche in posizione iniziale assoluta), TRANNE se in nesso consonantico
 - tʃ e dʒ NON si autogeminano
 - Raddoppio affricato: solo fase occlusiva → tts, ddz
 - Vocali lunghe: ː (cronema)
 - Consonanti lunghe: simbolo doppio
 - r: scempia o doppia come nell'ortografia
-- Approssimanti: j w
-- Raddoppiamento fonosintattico tra parole: sì
+- Approssimanti: j w (NON schwa ə — lo schwa non esiste in italiano standard)
+- Raddoppiamento fonosintattico (RF): dopo monosillabi tonici (verbi come ho, ha, è; preposizioni toniche; ecc.)
 - Assimilazioni cross-word obbligatorie: n→m davanti labiale, n→ŋ davanti velare
 - h muta
 - Vocali toniche e s/z intervocaliche: secondo le informazioni fornite nel messaggio (fonte: dizionario)
@@ -146,9 +152,16 @@ def lookup():
             continue
         ipa_raw = get_wiktionary_ipa(word_clean)
         if ipa_raw:
-            results.append(parse_wiktionary_ipa(ipa_raw, word_clean))
+            info = parse_wiktionary_ipa(ipa_raw, word_clean)
+            # Only include if there's actually something ambiguous
+            if info and (info["has_epsilon"] or info["has_open_o"] or
+                        info["has_voiced_s"] or info["has_voiced_z"] or
+                        info["has_voiceless_z"]):
+                results.append(info)
         else:
-            needs_user_input.append(word_clean)
+            # Only ask user for polysyllabic words (monosyllabics are rarely ambiguous)
+            if len(word_clean) > 3:
+                needs_user_input.append(word_clean)
 
     return jsonify({"results": results, "needs_user_input": needs_user_input})
 
@@ -174,8 +187,6 @@ def generate():
         )
         return jsonify({"frase": raw})
     except Exception as e:
-        if is_credit_error(e):
-            return jsonify({"error": "service_unavailable"}), 503
         return jsonify({"error": "service_unavailable"}), 503
 
 
@@ -230,8 +241,6 @@ def verify():
         result["context"] = context_lines
         return jsonify(result)
     except Exception as e:
-        if is_credit_error(e):
-            return jsonify({"error": "service_unavailable"}), 503
         return jsonify({"error": "service_unavailable"}), 503
 
 
@@ -257,8 +266,6 @@ def solution():
         result["context"] = context_lines
         return jsonify(result)
     except Exception as e:
-        if is_credit_error(e):
-            return jsonify({"error": "service_unavailable"}), 503
         return jsonify({"error": "service_unavailable"}), 503
 
 
