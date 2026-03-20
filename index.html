@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di fonetica italiana</h1>
-  <p class="subtitle">Trascrizione IPA · Convenzioni del corso · v1.0.0</p>
+  <p class="subtitle">Trascrizione IPA · Convenzioni del corso · v1.3.0</p>
   <div id="app"></div>
-  <footer>Laboratorio di fonetica italiana · v1.0.0</footer>
+  <footer>Laboratorio di fonetica italiana · v1.3.0</footer>
 </div>
 
 <script>
@@ -542,9 +542,9 @@ const FRASI = [
 // IPA KEYBOARD SYMBOLS
 // ═══════════════════════════════════════════════════════
 const IPA_SYMS = {
-  "vocali": ["i","e","ɛ","a","ɔ","o","u","ː"],
-  "consonanti": ["ʃ","ʒ","tʃ","dʒ","ts","dz","ɲ","ʎ","ŋ","ɱ","r","j","w"],
-  "diacritici": ["ˈ","ˌ",".","[","]"],
+  "vocali": ["ɛ", "ɔ", "ː"],
+  "consonanti": ["ʃ", "ʒ", "tʃ", "dʒ", "ɲ", "ʎ", "ŋ", "ɱ", "r"],
+  "diacritici": ["ˈ", "ˌ"],
 };
 
 // ═══════════════════════════════════════════════════════
@@ -558,56 +558,118 @@ async function wiktionaryLookup(word) {
     const data = await resp.json();
     if (!data.parse) return null;
     const wikitext = data.parse.wikitext['*'];
+    // Estrai sezione italiana
     const itMatch = wikitext.match(/==Italian==([\s\S]*?)(?:\n==[^=]|$)/);
     if (!itMatch) return null;
     const itText = itMatch[1];
+
+    // Prova prima {{IPA|it|/.../ }}
     const ipaMatches = [...itText.matchAll(/\{\{IPA\|it\|([^}]+)\}\}/g)];
-    if (!ipaMatches.length) return null;
-    const raw = ipaMatches[0][1].split('|')[0].replace(/[/\[\]]/g, '').trim();
-    return raw;
+    if (ipaMatches.length) {
+      const raw = ipaMatches[0][1].split('|')[0].replace(/[/\[\]]/g, '').trim();
+      return { tipo: 'ipa', valore: raw };
+    }
+
+    // Poi {{it-pr|...}} — contiene la parola con accenti grafici
+    const itPrMatch = itText.match(/\{\{it-pr\|([^}|<]+)/);
+    if (itPrMatch) {
+      // Prende solo la prima variante (es. "débito,dèbito" → "débito")
+      const prima = itPrMatch[1].trim().split(',')[0].trim();
+      // Gestisce notazione con punti sillabici (es. "lì.mi.te" → "lìmite")
+      const senzaPunti = prima.replace(/\./g, '');
+      return { tipo: 'it-pr', valore: senzaPunti };
+    }
+
+    return null;
   } catch(e) { return null; }
 }
 
-function parseWiktionaryIpa(ipaStr, word) {
-  if (!ipaStr) return null;
-  const hasVoicedS = /(?<![dt])z(?![dt])/.test(ipaStr);
-  const hasVoicedZ = ipaStr.includes('dz');
-  const hasVoicelessZ = ipaStr.includes('ts');
-  const hasEpsilon = ipaStr.includes('ɛ');
-  const hasOpenO = ipaStr.includes('ɔ');
-  const tonicMatch = ipaStr.match(/ˈ([aeiouɛɔ])/);
-  let accento = null;
-  if (tonicMatch) {
-    const v = tonicMatch[1];
-    const qualita = ['ɛ','ɔ'].includes(v) ? 'aperta' : ['e','o'].includes(v) ? 'chiusa' : 'normale';
-    accento = { posizione: -1, qualita, vocale: v };
+function parseWiktionaryResult(risultato, word) {
+  if (!risultato) return null;
+
+  let ipaStr = null;
+  let accentoGrafico = null; // parola con accenti come in it-pr (es. "càne", "giornàta")
+
+  if (risultato.tipo === 'ipa') {
+    ipaStr = risultato.valore;
+  } else if (risultato.tipo === 'it-pr') {
+    accentoGrafico = risultato.valore;
+    // Costruisci uno pseudo-IPA minimale per rilevare s/z sonore
+    // (it-pr non contiene info s/z, lasciamo null)
+    ipaStr = null;
   }
+
+  // Rileva s/z sonore dall'IPA (solo se disponibile)
+  const hasVoicedS = ipaStr ? /(?<![dt])z(?![dt])/.test(ipaStr) : false;
+  const hasVoicedZ = ipaStr ? ipaStr.includes('dz') : false;
+  const hasVoicelessZ = ipaStr ? ipaStr.includes('ts') : false;
+  const hasEpsilon = ipaStr ? ipaStr.includes('ɛ') : false;
+  const hasOpenO = ipaStr ? ipaStr.includes('ɔ') : false;
+
+  // Estrai accento:
+  // Caso 1: da IPA con ˈ
+  let accento = null;
+  if (ipaStr) {
+    const tonicMatch = ipaStr.match(/ˈ([aeiouɛɔ])/);
+    if (tonicMatch) {
+      const v = tonicMatch[1];
+      const qualita = ['ɛ','ɔ'].includes(v) ? 'aperta' : ['e','o'].includes(v) ? 'chiusa' : 'normale';
+      accento = { qualita, vocale: v, tipo: 'ipa' };
+    }
+  }
+
+  // Caso 2: da it-pr con accenti grafici (es. "càne" → a tonica, "bèllo" → ɛ)
+  if (!accento && accentoGrafico) {
+    // Cerca vocale con accento grafico
+    const accentoMatch = accentoGrafico.match(/([àèéòóùì])/);
+    if (accentoMatch) {
+      const va = accentoMatch[1];
+      const mappa = { 'à':'a','è':'ɛ','é':'e','ò':'ɔ','ó':'o','ù':'u','ì':'i' };
+      const v = mappa[va] || va;
+      const qualita = ['ɛ','ɔ'].includes(v) ? 'aperta' : ['e','o'].includes(v) ? 'chiusa' : 'normale';
+      accento = { qualita, vocale: v, tipo: 'it-pr', grafico: va };
+    } else {
+      // Parola piana senza accento esplicito: tonica sulla penultima vocale
+      // Lo gestiamo in elaboraParola come "accento piano"
+      accento = { qualita: 'normale', vocale: null, tipo: 'piano' };
+    }
+  }
+
   return {
-    word, ipa_raw: ipaStr,
+    word,
+    ipa_raw: ipaStr || accentoGrafico || '',
     has_epsilon: hasEpsilon, has_open_o: hasOpenO,
     has_voiced_s: hasVoicedS, has_voiced_z: hasVoicedZ, has_voiceless_z: hasVoicelessZ,
     source: 'wiktionary',
     trovato: true, omografi: [], s_sonore: [],
     z_indici_sonori: hasVoicedZ ? [0] : [],
     accento,
+    accentoGrafico, // conserva la forma it-pr per uso in elaboraParola
   };
+}
+
+// Mantieni compatibilità: wrapper che chiama parseWiktionaryResult
+function parseWiktionaryIpa(ipaStr, word) {
+  return parseWiktionaryResult({ tipo: 'ipa', valore: ipaStr }, word);
 }
 
 async function doLookup(frase) {
   const words = [...new Set((frase.match(/[a-zA-ZÀ-ù]+/g) || []).map(w => w.toLowerCase()))];
   const results = [];
-  const needsInput = [];
+  const needsInput = []; // solo parole con s/z davvero ambigue (non trovate su Wiktionary)
   for (const word of words) {
     const clean = word.replace(/[^\w]/g, '');
     if (!clean) continue;
-    const ipa = await wiktionaryLookup(clean);
-    if (ipa) {
-      const info = parseWiktionaryIpa(ipa, clean);
-      if (info && (info.has_epsilon || info.has_open_o || info.has_voiced_s || info.has_voiced_z || info.has_voiceless_z)) {
-        results.push(info);
-      }
+    const risultato = await wiktionaryLookup(clean);
+    if (risultato) {
+      const info = parseWiktionaryResult(risultato, clean);
+      if (info) results.push(info);
+      // NON aggiungere a needsInput: Wiktionary ha risposto
     } else {
-      if (clean.length > 3) needsInput.push(clean);
+      // Non trovata: chiedi solo se la parola contiene s o z intervocaliche
+      // (le uniche cose che non possiamo sapere senza dizionario)
+      const hasSZ = /[aeiou][sz][aeiou]/i.test(clean);
+      if (hasSZ && clean.length > 3) needsInput.push(clean);
     }
   }
   return { results, needsInput };
@@ -676,12 +738,12 @@ function renderHome() {
   card.appendChild(lbl('Scegli la frase'));
 
   const row = el('div','btn-row');
-  const btnRand = btn('Estraimi una frase', true);
+  const btnRand = btn('Frase casuale', true);
   btnRand.onclick = () => {
     const f = FRASI[Math.floor(Math.random() * FRASI.length)];
     startLookup(f);
   };
-  const btnCustom = btn('Inserisco la mia frase');
+  const btnCustom = btn('Inserisco io una mia frase');
   btnCustom.onclick = () => setState({ showCustom: !state.showCustom });
   row.appendChild(btnRand);
   row.appendChild(btnCustom);
@@ -694,6 +756,7 @@ function renderHome() {
     inp.value = state.customFrase;
     inp.style.marginTop = '0.75rem';
     inp.oninput = e => { state.customFrase = e.target.value; };
+    inp.onkeydown = e => { if (e.key === 'Enter' && state.customFrase.trim()) startLookup(state.customFrase.trim()); };
     const btnUsa = btn('Usa questa frase →', true);
     btnUsa.style.marginTop = '0.4rem';
     btnUsa.onclick = () => {
@@ -1017,7 +1080,7 @@ const AFFRICATE_DOPPIE = ['ttʃ','ddʒ','tts','ddz'];
 const AFFRICATE_SCEMPIE = ['tʃ','dʒ','ts','dz'];
 
 const LISTA_ACUTO = new Set(['sé','né','perché','affinché','benché','poiché','giacché','finché','sicché','poté']);
-const PAROLE_ATTIVANTI = new Set(['qualche','che','e','ma','o','se','a','su','i','ho','ha','hai','fa','va','sa','sta']);
+const PAROLE_ATTIVANTI = new Set(['qualche','che','e','se','a','su','i','ho','ha','hai','fa','va','sa','sta']);
 const PAROLE_RADDOPPIO_INIZIALE = new Set(['dio','dea','dei','dee']);
 const LETTERE_ALFABETO = {A:'à',B:'bbì',C:'ccì',D:'ddì',E:'è',F:'èffe',G:'ggì',H:'àcca',I:'ì',J:'ggèi',K:'kàppa',L:'èlle',M:'èmme',N:'ènne',O:'ò',P:'ppì',Q:'ccù',R:'èrre',S:'èsse',T:'ttì',U:'ù',V:'vvì',W:'dòppjavvì',X:'ìks',Y:'ìpsilon',Z:'zzèta'};
 
@@ -1169,10 +1232,13 @@ function raddoppiaFinalePrestiti(parola) {
 }
 
 function elaboraParola(parola, wiktFn) {
-  // Lettera alfabeto isolata
+  // Lettera alfabeto isolata (maiuscola singola)
   if (LETTERE_ALFABETO[parola]) {
     return { frammento: LETTERE_ALFABETO[parola] + '$', richiesta: false };
   }
+
+  // Converti in minuscolo (salvo segnaccenti già presenti)
+  parola = parola.toLowerCase();
 
   if (contaVocaliAccentateNonFinali(parola) > 1) {
     return { frammento: parola, richiesta: true, msg: `La parola "${parola}" ha più di un segnaccento. Riscrivila con uno solo.` };
@@ -1197,15 +1263,61 @@ function elaboraParola(parola, wiktFn) {
   }
   parola = parola.replace(/z/g, ris.has_voiced_z ? 'dz' : 'ts');
 
-  // Accento da Wiktionary
+  // Accento da Wiktionary — trova la vocale tonica nella parola ortografica
   if (!haSegnaccento && ris.accento) {
-    const q = ris.accento.qualita, v = ris.accento.vocale;
-    if (q === 'aperta') {
-      parola = parola.replace(/(?<![àèéòóùì])e(?![àèéòóùì])/i, 'è');
-      parola = parola.replace(/(?<![àèéòóùì])o(?![àèéòóùì])/i, 'ò');
-    } else if (q === 'chiusa') {
-      parola = parola.replace(/(?<![àèéòóùì])e(?![àèéòóùì])/i, 'é');
-      parola = parola.replace(/(?<![àèéòóùì])o(?![àèéòóùì])/i, 'ó');
+    const acc = ris.accento;
+
+    if (acc.tipo === 'it-pr' && ris.accentoGrafico) {
+      // Usa direttamente la forma grafica di it-pr (es. "càne" → mappa accento)
+      // Trova quale vocale è accentata nella forma it-pr e dove cade nella parola
+      const formaItPr = ris.accentoGrafico.toLowerCase();
+      const mappa = {'à':'a','è':'e','é':'e','ò':'o','ó':'o','ù':'u','ì':'i'};
+      // Cerca la vocale accentata e la sua posizione nella parola senza accenti
+      let posItPr = -1;
+      let vaItPr = null;
+      for (let k = 0; k < formaItPr.length; k++) {
+        if (mappa[formaItPr[k]]) { posItPr = k; vaItPr = formaItPr[k]; break; }
+      }
+      if (posItPr >= 0 && vaItPr) {
+        // Conta quante vocali ci sono prima di posItPr nella forma it-pr
+        // e trova la corrispondente posizione in parola
+        const mappaAccento = {'à':'à','è':'è','é':'é','ò':'ò','ó':'ó','ù':'ù','ì':'ì',
+          'a':'à','e':'è','o':'ò','i':'ì','u':'ù'};
+        // Se la vocale it-pr è già accentata (es. è,é) usa quella qualità
+        // altrimenti usa grave
+        const vAccentata = vaItPr in {'à':1,'è':1,'é':1,'ò':1,'ó':1,'ù':1,'ì':1} ?
+          vaItPr : mappaAccento[mappa[vaItPr]] || mappa[vaItPr];
+        // La vocale base (senza accento)
+        const vBase = mappa[vaItPr] || vaItPr;
+        // Sostituisci la prima occorrenza di vBase in parola con vAccentata
+        const re = new RegExp(`(?<![àèéòóùì])${vBase}(?![àèéòóùì])`, 'i');
+        parola = parola.replace(re, vAccentata);
+      }
+    } else if (acc.vocale) {
+      // Caso IPA: vocale tonica nota
+      const vOrtografico = {'ɛ':'e','ɔ':'o','e':'e','o':'o','a':'a','i':'i','u':'u'}[acc.vocale] || acc.vocale;
+      const vAccentata = {'ɛ':'è','ɔ':'ò','e':'é','o':'ó','a':'à','i':'ì','u':'ù'}[acc.vocale] || acc.vocale;
+      const re = new RegExp(`(?<![àèéòóùì])${vOrtografico}(?![àèéòóùì])`, 'i');
+      parola = parola.replace(re, vAccentata);
+    }
+    // caso 'piano': parola piana regolare, lasciamo senza accento
+    // (verrà trattata come sdrucciola dall'algoritmo se non trova accento)
+  }
+
+  // Default piano: se parola polisillabica ancora senza accento,
+  // metti accento sulla penultima vocale (regola piana)
+  if (!isMonosillabo(parola) && !haVocaleAccentataNoFinale(parola)) {
+    // Trova le posizioni di tutte le vocali non accentate
+    const VOCALI_BASE = 'aeiou';
+    const posVocali = [];
+    for (let k = 0; k < parola.length; k++) {
+      if (VOCALI_BASE.includes(parola[k])) posVocali.push(k);
+    }
+    // Penultima vocale = posVocali[posVocali.length - 2]
+    if (posVocali.length >= 2) {
+      const pos = posVocali[posVocali.length - 2];
+      const mappaGrave = { a:'à', e:'è', o:'ò', i:'ì', u:'ù' };
+      parola = parola.slice(0, pos) + mappaGrave[parola[pos]] + parola.slice(pos+1);
     }
   }
 
@@ -1227,20 +1339,57 @@ function pulisciDoppiepausa(frase) {
 
 function raddoppiamentoFonosintattico(frase) {
   // 3a: parole con raddoppiamento iniziale fisso (dio, dea, dei, dee)
+  // Solo se precedute da vocale (non da consonante né da inizio stringa)
   for (const parola of PAROLE_RADDOPPIO_INIZIALE) {
     const re = new RegExp('([aeiouàèéòóùìɛɔ|])\\$(' + parola + ')', 'g');
     frase = frase.replace(re, (m, pre, p) => pre + '$' + p[0] + p);
   }
 
-  // 3b: RF dopo vocale tonica finale
-  const vAcc = 'àèéòóùì';
-  const reRf = new RegExp(`([${vAcc}])\\$([bdgvlmnrptkfszʃʎɲ])(?![bdgvlmnrptkfszʃʎɲ])`, 'g');
-  frase = frase.replace(reRf, (m, v, c) => v + c + c);
+  // Helper: controlla se pos è inizio di s/z+consonante
+  function isSImpura(frase, pos) {
+    const c = frase[pos];
+    if (c !== 's' && c !== 'z') return false;
+    const next = frase[pos+1];
+    return next && !VOCALI.has(next) && next !== '$' && next !== '|';
+  }
+
+  // Helper: controlla se c'è già una doppia (es. bb, tt...)
+  function isGiaDopp(frase, pos) {
+    return frase[pos] === frase[pos+1];
+  }
+
+  // 3b: RF dopo vocale tonica finale (ossitone)
+  // pattern: VOCALE_ACCENTATA + $ + C (qualsiasi consonante)
+  // escludi: s/z+C (s impura), doppia già presente
+  let risultato = '';
+  let i = 0;
+  while (i < frase.length) {
+    if (VOCALI_ACCENTATE.has(frase[i]) && frase[i+1] === '$' && i+2 < frase.length) {
+      const posC = i+2;
+      const c = frase[posC];
+      if (!isSImpura(frase, posC) && !isGiaDopp(frase, posC)) {
+        // Raddoppia: elimina $ e inserisce C+C
+        risultato += frase[i] + c + c;
+        i += 3;
+        continue;
+      }
+    }
+    risultato += frase[i];
+    i++;
+  }
+  frase = risultato;
 
   // 3c: RF dopo parole attivanti
+  // Stessa logica: escludi s impura e doppie già presenti
   for (const att of PAROLE_ATTIVANTI) {
-    const re = new RegExp(att.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\$([bdgvlmnrptkfszʃʎɲ])(?![bdgvlmnrptkfszʃʎɲ])', 'g');
-    frase = frase.replace(re, (m, c) => att + c + c);
+    const escaped = att.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const re = new RegExp(escaped + '\\$(.)', 'g');
+    frase = frase.replace(re, (m, c, offset) => {
+      const posC = offset + att.length + 1;
+      if (isSImpura(frase, posC)) return att + '$' + c;
+      if (isGiaDopp(frase, posC)) return att + '$' + c;
+      return att + c + c;
+    });
   }
 
   // 3d: rimuovi tutti i $
@@ -1252,22 +1401,32 @@ function autogeminazioni(frase) {
   const CONS = new Set('bdgvlmnrptkfszʃʎɲ');
   function isC(c) { return c && CONS.has(c); }
 
-  // Processo dall'inizio, cerchiamo i simboli autogeminabili
+  // tʃ e dʒ NON si autogeminano (solo ʃ ʎ ɲ ts dz)
+  // ATTENZIONE: cercare ts SOLO se non è parte di tʃ (cioè non seguita da ʃ)
+  // e cercare dz SOLO se non è parte di dʒ (cioè non seguita da ʒ)
   const simboli = [
-    { sym: 'ts', rad: 'tts' },
-    { sym: 'dz', rad: 'ddz' },
-    { sym: 'ʃ', rad: 'ʃʃ' },
-    { sym: 'ʎ', rad: 'ʎʎ' },
-    { sym: 'ɲ', rad: 'ɲɲ' },
+    { sym: 'ts', rad: 'tts', esclude: 'ʃ' },  // non raddoppiare tʃ
+    { sym: 'dz', rad: 'ddz', esclude: 'ʒ' },  // non raddoppiare dʒ
+    { sym: 'ʃ', rad: 'ʃʃ', esclude: null },
+    { sym: 'ʎ', rad: 'ʎʎ', esclude: null },
+    { sym: 'ɲ', rad: 'ɲɲ', esclude: null },
   ];
 
-  for (const { sym, rad } of simboli) {
+  for (const { sym, rad, esclude } of simboli) {
     let i = 0;
     let result = '';
     while (i < frase.length) {
       if (frase.slice(i, i+sym.length) === sym) {
+        // Controlla che non faccia parte di un'affricata (es. ts non deve matchare in tʃ)
+        const carattereSeguente = frase[i + sym.length] || null;
+        if (esclude && carattereSeguente === esclude) {
+          // È parte di un'affricata (tʃ o dʒ), non raddoppiare
+          result += frase[i];
+          i++;
+          continue;
+        }
         const pre = i > 0 ? frase[i-1] : null;
-        const post = frase[i+sym.length] || null;
+        const post = carattereSeguente;
         const preOk = !pre || !isC(pre);
         const postOk = !post || !isC(post);
         if (preOk && postOk) {
@@ -1413,9 +1572,9 @@ function sillabifica(frase) {
       const t = tokens[k];
       if (punti[k] && k > 0) {
         if (AFFRICATE_DOPPIE.includes(t)) {
-          // Vt.tʃV: il punto va tra i due elementi
-          const meta = Math.ceil(t.length / 2);
-          parti += t.slice(0, meta) + '.' + t.slice(meta);
+          // ddʒ → d.dʒ, ttʃ → t.tʃ, tts → t.ts, ddz → d.dz
+          // Il punto va dopo il primo carattere (la fase occlusiva singola)
+          parti += t[0] + '.' + t.slice(1);
           continue;
         }
         parti += '.' + t;
@@ -1461,9 +1620,18 @@ function marcaToniche(sillabe) {
   return sillabe.map(sillaba => {
     for (const [acc, base] of Object.entries(MAPPA_ACCENTO)) {
       if (sillaba.includes(acc)) {
-        const nuova = sillaba.replace(acc, base);
-        if (nuova.startsWith('.')) return '.ˈ' + nuova.slice(1);
-        return 'ˈ' + nuova;
+        let nuova = sillaba.replace(acc, base);
+        // Aggiunge ˈ all'inizio della sillaba
+        if (nuova.startsWith('.')) nuova = '.ˈ' + nuova.slice(1);
+        else nuova = 'ˈ' + nuova;
+        // Cronema: se la sillaba tonica è aperta (finisce per vocale), allunga la vocale
+        // Sillaba aperta = l'ultimo carattere è una vocale
+        const core = nuova.replace(/^[.ˈˌ]*/,'');
+        if (VOCALI_ATONE.has(core[core.length-1]) || ['ɛ','ɔ'].includes(core[core.length-1])) {
+          // Inserisci ː dopo la vocale tonica (che è l'unica vocale accentata nella sillaba)
+          nuova = nuova.replace(base, base + 'ː');
+        }
+        return nuova;
       }
     }
     return sillaba;
