@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratorio di fonetica italiana</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --card: #ffffff;
+    --border: #e2ddd6;
+    --text: #1c1917;
+    --muted: #78716c;
+    --accent: #b45309;
+    --accent-light: #fef3c7;
+    --accent-border: #fcd34d;
+    --green: #166534;
+    --green-bg: #f0fdf4;
+    --red: #991b1b;
+    --red-bg: #fef2f2;
+    --yellow: #92400e;
+    --yellow-bg: #fffbeb;
+    --mono: 'JetBrains Mono', monospace;
+    --serif: 'Libre Baskerville', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--serif);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.2rem;
+  }
+  .subtitle {
+    font-size: 0.78rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    margin-bottom: 2rem;
+    letter-spacing: 0.04em;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  .frase-text {
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .frase-note {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-family: var(--mono); font-size: 0.78rem; font-weight: 500;
+    padding: 0.55rem 1.1rem; border-radius: 7px;
+    border: 1px solid var(--border);
+    cursor: pointer; background: transparent; color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--bg); border-color: #c5bfb8; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-primary {
+    background: var(--text); color: #fff; border-color: var(--text);
+  }
+  .btn-primary:hover { background: #292524; }
+  .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+  /* IPA keyboard */
+  .ipa-kb { margin-bottom: 1rem; }
+  .ipa-group { margin-bottom: 0.6rem; }
+  .ipa-group-label {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    display: block; margin-bottom: 0.35rem;
+  }
+  .ipa-keys { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .ipa-key {
+    font-family: var(--mono); font-size: 0.9rem;
+    padding: 0.3rem 0.6rem; border-radius: 5px;
+    border: 1px solid var(--border); background: var(--bg);
+    cursor: pointer; color: var(--text); transition: all 0.12s;
+  }
+  .ipa-key:hover { background: var(--accent-light); border-color: var(--accent-border); }
+  .ipa-key:active { transform: scale(0.93); }
+
+  /* Textarea */
+  textarea {
+    width: 100%; font-family: var(--mono); font-size: 1rem;
+    padding: 0.75rem 1rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text); resize: vertical; min-height: 80px;
+    line-height: 1.6; outline: none; margin-bottom: 0.75rem;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: #a8a29e; }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid var(--border); border-top-color: var(--muted);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Results */
+  .ipa-result {
+    font-family: var(--mono); font-size: 0.95rem;
+    background: var(--bg); padding: 0.75rem 1rem;
+    border-radius: 7px; display: block;
+    word-break: break-all; line-height: 1.8;
+    margin-bottom: 0.75rem; color: var(--text);
+  }
+  .esito-badge {
+    display: inline-block; font-family: var(--mono);
+    font-size: 0.7rem; padding: 0.25rem 0.6rem;
+    border-radius: 4px; margin-bottom: 0.75rem;
+  }
+  .esito-corretto { background: var(--green-bg); color: var(--green); }
+  .esito-parziale { background: var(--yellow-bg); color: var(--yellow); }
+  .esito-errato   { background: var(--red-bg);    color: var(--red);   }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0.75rem 0; }
+
+  /* Log scontri */
+  .log-item {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    padding: 0.2rem 0; line-height: 1.5;
+  }
+
+  /* Page 2: needs_input */
+  .word-input-block {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .word-input-block:last-child { border-bottom: none; }
+  .word-label {
+    font-style: italic; font-size: 1.05rem; margin-bottom: 0.5rem;
+  }
+  .choice-row {
+    display: flex; align-items: center; gap: 0.4rem;
+    flex-wrap: wrap; margin-bottom: 0.35rem;
+  }
+  .choice-lbl {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+    min-width: 120px;
+  }
+  .cbtn {
+    font-family: var(--mono); font-size: 0.75rem;
+    padding: 0.25rem 0.7rem; border-radius: 5px;
+    border: 1px solid var(--border); cursor: pointer;
+    background: transparent; color: var(--text); transition: all 0.12s;
+  }
+  .cbtn:hover { background: var(--bg); }
+  .cbtn.sel { background: var(--text); color: #fff; border-color: var(--text); }
+
+  /* Source badge */
+  .src { display: inline-block; font-family: var(--mono); font-size: 0.6rem;
+    padding: 0.1rem 0.4rem; border-radius: 3px; margin-left: 0.3rem; }
+  .src-wikt { background: #dcfce7; color: #166534; }
+  .src-utente { background: #f1f5f9; color: #475569; }
+
+  /* Unavail */
+  .unavail {
+    font-family: var(--mono); font-size: 0.78rem;
+    color: var(--yellow); background: var(--yellow-bg);
+    border: 1px solid var(--accent-border);
+    border-radius: 7px; padding: 0.7rem 1rem; margin-top: 0.5rem;
+  }
+
+  /* Footer */
+  footer {
+    font-family: var(--mono); font-size: 0.65rem; color: #c5bfb8;
+    text-align: center; margin-top: 2.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Custom input */
+  .text-input {
+    width: 100%; font-family: var(--serif); font-style: italic;
+    font-size: 1.1rem; padding: 0.65rem 1rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text); outline: none; margin-bottom: 0.6rem;
+    transition: border-color 0.15s;
+  }
+  .text-input:focus { border-color: #a8a29e; }
+
+  /* Loading page */
+  .loading-msg {
+    font-family: var(--mono); font-size: 0.82rem;
+    color: var(--muted); display: flex; align-items: center; gap: 0.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Laboratorio di fonetica italiana</h1>
+  <p class="subtitle">Trascrizione IPA · Convenzioni del corso · v1.0.0</p>
+  <div id="app"></div>
+  <footer>Laboratorio di fonetica italiana · v1.0.0</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// FRASI
+// ═══════════════════════════════════════════════════════
+const FRASI = [
+  "Il filosofo ha bevuto un caffè con lo zucchero sopra il mappamondo.",
+  "Quella zebra suona il sassofono davanti a una cascata di yogurt, non per forza.",
+  "Ho visto che il sindaco ha regalato un cactus a ogni vigile del fuoco.",
+  "La principessa mangia spaghetti al cioccolato in cima alla torre.",
+  "Quel gatto selvatico ha convinto il dentista a indossare un elmo.",
+  "Lo studente di fisica ha lanciato un orologio dal quinto piano.",
+  "La volpe rossa ha comprato diciassette scarpe da sci in luglio.",
+  "Quel trombettista suona la ninna nanna ai pesci rossi del vicino.",
+  "Ho capito che il bidello conserva funghi nel cassetto della cattedra.",
+  "La cuoca bizzarra ha aggiunto sette chiodi alla zuppa di cipolle.",
+  "Il professore di chimica tesse sciarpe durante le interrogazioni.",
+  "Quella lumaca velocissima ha vinto il campionato di salto in alto.",
+  "Ho sentito che il notaio colleziona denti di elefante in soffitta.",
+  "Il meccanico scrive poesie col grasso dei motori ogni martedì.",
+  "Quella gallina filosofa rifiuta di mangiare se non legge Kant prima.",
+  "Il postino ha consegnato una lettera a un fungo in mezzo al bosco.",
+  "Lo zoologo ha scoperto che i piccioni capiscono il greco antico.",
+  "Quella maestra di yoga insegna agli scoiattoli a fare la verticale.",
+  "Ho visto il vigile fischiare a una nuvola che passava col rosso.",
+  "Il cardiologo colleziona bottoni e li conta ogni sera prima di dormire.",
+  "Quella scatola di cioccolatini ha convinto il gatto a studiare il flauto.",
+  "Lo spazzino raccoglie sogni caduti sul marciapiede ogni lunedì.",
+  "Ho sentito che il direttore d'orchestra alleva api nel seminterrato.",
+  "La babysitter ha insegnato al bambino a urlare in codice Morse.",
+  "Quel pescatore ha trovato una valigia piena di quaderni sott'acqua.",
+  "Il falegname costruisce mobili che scompaiono durante la notte.",
+  "Quella nuvola testarda non vuole piovere sopra i campi di grano.",
+  "Ho capito che il fabbro trasforma chiavi in sculture astratte.",
+  "La pensionata alleva piovre sul balcone del quarto piano.",
+  "Quel bambino prodigio ha risolto un cubo di Rubik con i piedi.",
+  "Il macellaio suona la cornamusa ogni volta che taglia il prosciutto.",
+  "Quella formica operaia ha scioperato per ottenere ferie pagate.",
+  "Ho visto che il giardiniere parla alle piante in dialetto siciliano.",
+  "La biologa marina ha trovato un cellulare funzionante dentro una medusa.",
+  "Quel ciclista pedala con un ombrello aperto anche quando non piove.",
+  "Il commissario ha arrestato un semaforo per comportamento sospetto.",
+  "Quella cozza arrogante rifiuta di aprirsi per chi non dice per favore.",
+  "Ho sentito che l'astrofisico indossa pigiama a stelle anche di giorno.",
+  "La dentista ha estratto un dente che suonava la tromba.",
+  "Quel pompiere colleziona nuvole dentro barattoli di marmellata vuoti.",
+  "Il monaco tibetano ha perso le pantofole su un autobus a Milano.",
+  "Quella statua di marmo ha starnutito durante la cerimonia ufficiale.",
+  "Ho capito che il farmacista misura le distanze con spaghetti crudi.",
+  "La trapezista ha deciso di aprire una gelateria in cima al circo.",
+  "Quel gufo notturno frequenta corsi di ceramica il martedì pomeriggio.",
+  "Il banchiere nasconde monete nella cravatta durante le riunioni.",
+  "Quella piovra ambidestra suona il pianoforte con sei tentacoli.",
+  "Ho visto un gatto con gli occhiali correggere compiti in cucina.",
+  "La nonna anarchica ha dipinto il frigorifero di rosso a strisce verdi.",
+  "Quel coccodrillo timido chiede scusa ogni volta che apre la bocca.",
+  "Il tassista porta sempre con sé un dizionario di sanscrito.",
+  "Quella volpe urbana fa shopping al supermercato ogni giovedì sera.",
+  "Ho sentito che il chimico mette il sale nella tisana per abitudine.",
+  "La contadina ha piantato orologi nel campo invece del grano.",
+  "Quel violinista suona i Blues soltanto quando nevica in città.",
+  "Il geometra misura le emozioni con un righello telescopico.",
+  "Quella mucca filosofa rifiuta di dare latte prima delle dieci.",
+  "Ho capito che il pescatore vende pesci finti al mercato del martedì.",
+  "La pallavolista ha saltato così in alto da atterrare in Svizzera.",
+  "Quel topo di biblioteca legge enciclopedie invece di mangiare carta.",
+  "Il pasticcere aggiunge polvere di stelle ai cornetti della domenica.",
+  "Quella lucciola disoccupata fa da lampeggiante ai camion di notte.",
+  "Ho visto che il pianista accordava i gatti invece del pianoforte.",
+  "La poliziotta ha multato la luna per eccesso di luminosità.",
+  "Quel bambino ha scritto una lettera alla gravità per protestare.",
+  "Il geologo conserva campioni di silenzio in provette sigillate.",
+  "Quella galleria d'arte espone sbadigli famosi del Settecento.",
+  "Ho sentito che il sindacalista porta il grembiule anche alle assemblee.",
+  "La ricercatrice ha scoperto che le lumache sognano in bianco e nero.",
+  "Quel dottore prescrive passeggiate lunari ai pazienti insonni.",
+  "Il capostazione suona il fischietto anche quando non arriva nessun treno.",
+  "Quella pecora contabile tiene i conti della gregge in un taccuino.",
+  "Ho capito che il trapezista calcola le traiettorie con l'abaco.",
+  "La scrittrice di fantascienza alleva draghi nani in giardino.",
+  "Quel professore di latino traduce le istruzioni degli elettrodomestici.",
+  "Il pompiere ha innaffiato le petunie mentre spegneva l'incendio.",
+  "Quella stringa di scarpa si è rifiutata di annodarsi per tre settimane.",
+  "Ho visto il fornaio impastare il pane con le ascelle al ritmo di samba.",
+  "La geologa raccoglie fossili di silenzi imbarazzanti.",
+  "Quel semaforo ha litigato col vigile per questioni di principio.",
+  "Il cuoco ha aggiunto un'equazione di secondo grado alla minestra.",
+  "Quella tartaruga sprint allena giovani lepri alla velocità.",
+  "Ho sentito che il chirurgo prenota biglietti del circo durante le operazioni.",
+  "La meteorologa ha previsto pioggia di gomme da masticare per giovedì.",
+  "Quel campanile ha smesso di suonare per protesta contro il fuso orario.",
+  "Il filosofo ha ingaggiato una battaglia con la propria ombra e ha perso.",
+  "Quella rana soprano ha debuttato alla Scala con un'aria di Verdi.",
+  "Ho capito che il bibliotecario ordina i libri per odore.",
+  "La maestra di sci insegna a scendere le scale sulle pattine.",
+  "Quel vigile del fuoco ha spento l'incendio con acqua di rose.",
+  "Il botanico ha scoperto che alcune piante capiscono il sarcasmo.",
+  "Quella balena metropolitana prende la metro ogni mattina alle sette.",
+  "Ho visto il pizzaiolo lanciare la pizza fino al soffitto e dimenticarla.",
+  "La calciatrice ha segnato un gol dalla luna con un tiro di destro.",
+  "Quel riccio matematico calcola il percorso minimo prima di ogni passeggiata.",
+  "Il violoncellista usa il suo strumento come canoa nei giorni di pioggia.",
+  "Quella nonna hacker entra nei sistemi informatici tra un maglia e l'altra.",
+  "Ho sentito che il pasticcere cifra i messaggi segreti nella glassa.",
+  "La speleologa colleziona buio in scatole di diverse dimensioni.",
+  "Quel gabbiano imprenditore ha aperto un servizio di consegna a domicilio.",
+  "Il pediatra ha diagnosticato al paziente un eccesso di fantasia cronica.",
+  "Quella stella alpina ha querellato il turista per uso improprio della sua immagine.",
+  "Ho capito che il fruttivendolo comunica con i cetrioli per telepatia.",
+  "La nuotatrice sincronizzata si allena nella vasca da bagno dei vicini.",
+  "Quel pappagallo avvocato difende cause in quattro lingue contemporaneamente.",
+  "Il sarto ha cucito un vestito che cambia colore a seconda dell'umore.",
+  "Quella chiocciola urbanistica ha progettato un condominio di tre piani.",
+  "Ho visto che il cardinale alleva lucertole nel palazzo apostolico.",
+  "La maratoneta si è fermata a fare un pisolino al quarantesimo chilometro.",
+  "Quel matematico risolve le equazioni camminando a zigzag.",
+  "Il tuffatore ha saltato dalla rupe e ha trovato il mare già occupato.",
+  "Quella scimmietta contabile ha trovato un errore nel bilancio dello stato.",
+  "Ho sentito che il mugnaio macina dubbi esistenziali invece del grano.",
+  "La campionessa di nuoto ha vinto la gara senza bagnarsi, con grande calma.",
+  "Quel sindaco ha firmato un decreto contro i sogni troppo rumorosi.",
+  "Il liutaio costruisce violini che piangono suonate di Bartók.",
+  "Quella lumaca triatleta ha completato l'Ironman in quarantasette anni.",
+  "Ho capito che l'allenatore di calcio alleva pulci ammaestrate nel tempo libero.",
+  "La casalinga quantistica è in più posti contemporaneamente durante le pulizie.",
+  "Quel piccione diplomatico porta messaggi segreti tra le capitali europee.",
+  "Il gelataio ha inventato un gusto che sa del primo giorno di scuola.",
+  "Quella signora anziana ha scalato il Monte Bianco con le pantofole.",
+  "Ho visto il semiologo cercare significati nascosti nelle previsioni del tempo.",
+  "La scultrice ha scolpito un cubo di ghiaccio che non si scioglie mai.",
+  "Quel tassello mancante del puzzle ha aperto uno sportello in banca.",
+  "Il ginnasta ha eseguito una capriola dentro il frigorifero per scommessa.",
+  "Quella formica sindacalista ha organizzato uno sciopero delle formiche operaie.",
+  "Ho sentito che l'ornitologa insegna ai merli a cantare jazz.",
+  "La professoressa di matematica disegna frattali sulle torte di compleanno.",
+  "Quel cane filosofo abbaia solo in risposta a domande esistenziali.",
+  "Il falegname ha costruito una porta che conduce solo ai ricordi belli.",
+  "Quella stella cadente ha chiesto il rimborso per un desiderio non esaudito.",
+  "Ho capito che il meccanico ripara automobili fischiettando equazioni.",
+  "La scrittrice ha ambientato il suo ultimo romanzo dentro una scarpa.",
+  "Quel bambino ha convinto la nonna che i biscotti curano il mal di testa.",
+  "Il guardiano del faro legge riviste di moda alle onde del mare.",
+  "Quella rana cronista ha intervistato il sole sul calo delle temperature.",
+  "Ho visto che il primario indossa calze a righe sotto il camice bianco.",
+  "La pasticcera ha preparato un dolce che sa di martedì pomeriggio.",
+  "Quel topo di fogna ha scritto una guida gastronomica sotterranea.",
+  "Il funambolo fa la spesa camminando su un filo tra due supermercati.",
+  "Quella nuvola permalosa non piove sulle case di chi la ignora.",
+  "Ho sentito che il generale ha combattuto la sua ultima battaglia a scacchi.",
+  "La studentessa di veterinaria ha vaccinato i pesci contro il mal di mare.",
+  "Quel professore di ginnastica insegna a cadere con stile e grazia.",
+  "Il cuoco tibetano aggiunge meditazione trascendentale al brodo di pollo.",
+  "Quella gallina con la laurea ha trovato lavoro come consulente finanziaria.",
+  "Ho capito che il pittore usa come pennello la coda del gatto.",
+  "La ricercatrice ha dimostrato che i ponti sognano quando non ci passa nessuno.",
+  "Quel postino consegna lettere del futuro con tre settimane di anticipo.",
+  "Il vigile urbano ha multato un albero per ombra abusiva sul marciapiede.",
+  "Quella pecora contorsionista si piega in quattro per accontentare tutti.",
+  "Ho visto il ciclista pedalare all'indietro cantando arie liriche.",
+  "La biologa ha scoperto che gli alberi fanno il tifo per la squadra locale.",
+  "Quel pasticcere nevrotico mette le brioches in fila per altezza.",
+  "Il detective ha risolto il caso annusando le impronte digitali.",
+  "Quella lumaca emigrata ha attraversato l'oceano in quarant'anni.",
+  "Ho sentito che il rabbino colleziona chiodi arrugginiti per superstizione.",
+  "La paleontologa ha trovato un fossile di risata risalente al Giurassico.",
+  "Quel cavallo da corsa legge il giornale prima di ogni gara.",
+  "Il pizzaiolo ha lanciato la pizza così in alto che è diventata un satellite.",
+  "Quella chiave inglese si è laureata in ingegneria strutturale.",
+  "Ho capito che la cameriera serve le emozioni invece del caffè.",
+  "Il geometra ha misurato la distanza tra due pensieri con il teodolite.",
+  "Quella civetta nottambula ha aperto un bar solo per gufi insonni.",
+  "Lo speleologo ha trovato una grotta piena di sospiri perduti.",
+  "Il bambino ha insegnato alla nonna a fare il breakdance in cucina.",
+  "Quella mucca artista dipinge capolavori con la coda intinta nel latte.",
+  "Ho visto che il farmacista prepara pozioni contro la malinconia del lunedì.",
+  "La violinista suona Vivaldi ai pomodori per farli crescere più in fretta.",
+  "Quel trampoliere fa la spesa allungando le mani dai palchi del supermercato.",
+  "Il professore di storia insegna il futuro e prevede il passato.",
+  "Quella volpe urbana ha conseguito la patente di guida al primo tentativo.",
+  "Ho sentito che il monaco ha trovato l'illuminazione dentro una lavatrice.",
+  "La campionessa di scacchi risolve le partite in sogno e poi le trasferisce.",
+  "Quel bambino prodigio ha inventato un linguaggio per parlare con le piante.",
+  "Il maestro elementare insegna i numeri primi usando le dita dei piedi.",
+  "Quella tartaruga record ha battuto il primato mondiale di immobilità.",
+  "Ho capito che la nuotatrice si allena nella fontana di Trevi di notte.",
+  "Il boscaiolo abbatte alberi con la forza del pensiero ogni venerdì.",
+  "Quella soubrette ha convinto il pubblico che volare è una questione di volontà.",
+  "Lo studente di filosofia ha smesso di camminare perché il moto è un'illusione.",
+  "Il gatto bibliotecario restituisce i libri sempre con il segnalibro al posto giusto.",
+  "Quella nonna skateboarder ha vinto il campionato under novanta.",
+  "Ho visto il dottore prescrivere tre risate al giorno prima dei pasti.",
+  "La ricercatrice studia le lacrime degli ombrelli nelle giornate di sole.",
+  "Quel mago da quattro soldi ha fatto sparire il suo pubblico per sbaglio.",
+  "Il geometra ha scoperto che la sua casa si trova leggermente fuori scala.",
+  "Quella ranocchia deputata ha proposto una legge contro la siccità.",
+  "Ho sentito che la poliziotta colleziona fermi di persona a scopo artistico.",
+  "Il fabbro ha forgiato un'ancora per tenere fermi i sogni durante la notte.",
+  "Quella coccinella meteorologa prevede il tempo con le macchie sulle ali.",
+  "Lo scrittore ha ambientato il suo romanzo dentro la propria testa.",
+  "Il professore di musica ha insegnato al silenzio a fare le ottave.",
+  "Quella nuvola stonata accompagna con le sue piogge le canzoni sbagliate.",
+  "Ho capito che il botanico canta serenate alle felci ogni giovedì sera.",
+  "La trapezista esegue acrobazie fiscali per il suo commercialista.",
+  "Quel gatto contabile trova sempre il pelo nell'uovo nei bilanci aziendali.",
+  "Il costruttore ha edificato un palazzo con fondamenta di buona volontà.",
+  "Quella pianista ha composto una sonata per accordatore di pianoforti sordo.",
+  "Ho visto il panettiere lievitare insieme al suo pane ogni mattina.",
+  "La speleologa studia il buio di giorno e la luce di notte.",
+  "Quel tacchino esistenzialista si chiede ogni mattina perché alzarsi.",
+  "Il chimico ha sintetizzato la nostalgia in laboratorio e l'ha brevettata.",
+  "Quella zebratura non era una zebratura ma un codice Morse sull'asfalto.",
+  "Ho sentito che il guardaparco alleva farfalle acrobatiche per spettacoli.",
+  "La ballerina di tango ha fatto inciampare il suo partner in tre continenti.",
+  "Quel pasticcere ha cucinato una torta che sa esattamente di ieri.",
+  "Il pittore usa i tuoni come pennellate sui cieli delle sue tele.",
+  "Quella mucca musicista ha suonato il basso in un gruppo jazz.",
+  "Ho capito che il geologo misura il tempo con la velocità delle stalattiti.",
+  "La cuoca ha inventato una ricetta che guarisce la sindrome del lunedì mattina.",
+  "Quel gufo intellettuale tiene conferenze sui buchi neri ai topi di campagna.",
+  "Il meccanico ha riparato il tempo che si era fermato la settimana scorsa.",
+  "Quella pecora avanguardista ha progettato un labirinto moderno per il gregge.",
+  "Ho visto il sommelier annusare i vini del futuro per ordinare al presente.",
+  "La matematica ha trovato un numero che non vuole essere calcolato.",
+  "Quel fungo radioattivo fa luce sufficiente per leggere di notte.",
+  "Il geometra ha diviso il cielo in particelle catastali regolari.",
+  "Quella lumaca ha citato in giudizio la lepre per diffamazione.",
+  "Ho sentito che il parrucchiere taglia i capelli ai pensieri degli insonni.",
+  "La professoressa di letteratura ha trovato una metafora rimasta nascosta per secoli.",
+  "Quel delfino laureato in economia insegna microfinanza ai pesci pilota.",
+  "Il sarto ha misurato l'infinito e ha concluso che non calza bene a nessuno.",
+  "Quella stella polare ha cambiato lavoro e ora fa il semaforo all'incrocio.",
+  "Ho capito che il fioraio coltiva fiori in pentola e pasta nei vasi.",
+  "La vigile ha multato il vento per eccesso di velocità in centro.",
+  "Quel corvo filosofo raccoglie oggetti lucidi e argomenti solidi.",
+  "Il ginnasta ha eseguito un salto mortale per evitare un buchetto sul marciapiede.",
+  "Quella giraffa archivista conserva documenti riservati nei cassetti più alti.",
+  "Ho visto il calciatore segnare un gol su punizione con gli occhi chiusi.",
+  "La fisioterapista ha curato il mal di schiena di un campanile storto.",
+  "Quel rospo imprenditore ha lanciato una startup per la raccolta di mosche.",
+  "Il direttore d'orchestra ha diretto un temporale in do minore.",
+  "Quella mantide religiosa ha fondato un ordine monastico per insetti.",
+  "Ho sentito che la cosmonave faceva il footing intorno alla luna ogni sera.",
+  "Il vigile del fuoco ha salvato un gatto che non voleva essere salvato.",
+  "Quella professoressa di yoga insegna l'equilibrio al pendolo di Foucault.",
+  "Lo spettacolo di burattini era diretto da un burattinaio burattino.",
+  "Il carpentiere costruisce scale per persone che vogliono scendere.",
+  "Quella leonessa avvocato difende i diritti delle zebre in tribunale.",
+  "Ho capito che il mago ha perso le istruzioni e ora fa sparire cose utili.",
+  "La studentessa di astronomia ha trovato una stella che suona il sassofono.",
+  "Quel criceto stacanovista gira la ruota anche nei giorni festivi.",
+  "Il sindaco ha emanato un'ordinanza contro il silenzio nelle ore di punta.",
+  "Quella pecora urbana prende l'autobus ogni mattina con l'abbonamento mensile.",
+  "Ho visto il pastore spostare le pecore con un joystick dal divano.",
+  "La ceramista plasma argilla con i piedi e pensa con le mani.",
+  "Quel coniglio contabile ha trovato gli errori nel bilancio dell'ecosistema.",
+  "Il fonditore ha fuso un pensiero inutile in un oggetto decorativo.",
+  "Quella rondine architetta ha progettato un nido antisismico in classe A.",
+  "Ho sentito che il postino consegna le mail stampate a chi non ha internet.",
+  "La comica involontaria fa ridere il pubblico parlando di cose serissime.",
+  "Quel cormorano fotografo ritrae le nuvole per riviste subacquee.",
+  "Il domatore di pulci ha perso il lavoro quando le pulci si sono organizzate.",
+  "Quella gallina sperimentale ha covato un uovo di marmo per tre settimane.",
+  "Ho capito che il medico di base misura la febbre con il termometro sbagliato.",
+  "La nuotatrice ha attraversato il lago a farfalla cantando Rigoletto.",
+  "Quel funzionario comunale ha archiviato una nuvola senza numero di protocollo.",
+  "Il compositore scrive musica che suona anche quando non viene eseguita.",
+  "Quella tigre in pensione alleva cuccioli di vegetariani convinti.",
+  "Ho visto il tecnico riparare il buon umore con un cacciavite a stella.",
+  "La pensionata pilota accumulava miglia aeree per fare la spesa.",
+  "Quel filosofo ha perso un argomento mentre cambiava autobus.",
+  "Il pasticcere ha creato una tarte tatin che piange quando viene tagliata.",
+  "Quella scimmia contorsionista si è infilata dentro la sua stessa tasca.",
+  "Ho sentito che il carpentiere pianta chiodi nei pensieri sbagliati.",
+  "La palomba pacifista porta ulivi invece di messaggi.",
+  "Quel marmocchio testardo ha tenuto il fiato per tre anni di fila.",
+  "Il trombonista suona durante i terremoti per coprire il rumore.",
+  "Quella stella marina ha vinto una causa per danni morali contro la marea.",
+  "Ho capito che il geologo sente le crepe nel terreno come note musicali.",
+  "La presentatrice ha intervistato il vento sulla stagione autunnale.",
+  "Quel bradipo ultramaratoneta arriva sempre al traguardo ma mai a orario.",
+  "Il semaforo ha chiesto ferie e ha sostituito un vigile per tre giorni.",
+  "Quella professoressa di fisica quantistica non è mai dove sembra essere.",
+  "Ho visto il fornaio fare il pane a occhi chiusi fischiettando Bach.",
+  "La tuffatrice ha eseguito un triplo salto dentro una pozzanghera.",
+  "Quel lombrico architetto ha costruito cunicoli seguendo il Codice di Hammurabi.",
+  "Il regista ha girato un film con attori che dormivano durante le riprese.",
+  "Quella nonna hooligan urla ai calciatori suggerimenti in latino.",
+  "Ho sentito che il barista prepara il caffè seguendo i principi dell'alchimia.",
+  "La geologa ha trovato uno strato sedimentario pieno di ricevute fiscali.",
+  "Quel gatto musicologo analizza le proprie fusa come forme di sonata.",
+  "Il maestro di scherma insegna a duellare con le cravatte.",
+  "Quella giornalista ha scritto un articolo sulla notizia di non aver notizie.",
+  "Ho capito che il pizzaiolo lancia l'impasto in orbita e lo riprende al volo.",
+  "La terapeuta ha curato una crisi esistenziale usando solo origami.",
+  "Quel toro da rodeo frequenta corsi serali di danza classica.",
+  "Il pasticcere ha sfornato bignè che contengono ricordi d'infanzia.",
+  "Quella rondine pendolare percorre ogni giorno mille chilometri per abitudine.",
+  "Ho visto il pompiere costruire una fontana con i tubi dell'incendio.",
+  "La studentessa di medicina ha diagnosticato il temporale con lo stetoscopio.",
+  "Quel ragno ingegnere ha costruito una rete con accesso WiFi incluso.",
+  "Il paleontologo ha trovato le impronte di un dinosauro che andava a fare jogging.",
+  "Quella colibrì imprenditrice ha brevettato un sistema di consegna in un secondo.",
+  "Ho sentito che la bibliotecaria classifica i silenzi per intensità e durata.",
+  "Il calzolaio ripara le scarpe raccontando fiabe ai chiodi, con grande cura.",
+  "Quella quercia centenaria ha vinto un concorso di bellezza contro le palme.",
+  "Lo speleologo ha trovato una grotta attrezzata con cucina e bagno."
+];
+
+// ═══════════════════════════════════════════════════════
+// IPA KEYBOARD SYMBOLS
+// ═══════════════════════════════════════════════════════
+const IPA_SYMS = {
+  "vocali": ["i","e","ɛ","a","ɔ","o","u","ː"],
+  "consonanti": ["ʃ","ʒ","tʃ","dʒ","ts","dz","ɲ","ʎ","ŋ","ɱ","r","j","w"],
+  "diacritici": ["ˈ","ˌ",".","[","]"],
+};
+
+// ═══════════════════════════════════════════════════════
+// WIKTIONARY LOOKUP
+// ═══════════════════════════════════════════════════════
+async function wiktionaryLookup(word) {
+  const encoded = encodeURIComponent(word.toLowerCase());
+  const url = `https://en.wiktionary.org/w/api.php?action=parse&page=${encoded}&prop=wikitext&format=json&origin=*`;
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (!data.parse) return null;
+    const wikitext = data.parse.wikitext['*'];
+    const itMatch = wikitext.match(/==Italian==([\s\S]*?)(?:\n==[^=]|$)/);
+    if (!itMatch) return null;
+    const itText = itMatch[1];
+    const ipaMatches = [...itText.matchAll(/\{\{IPA\|it\|([^}]+)\}\}/g)];
+    if (!ipaMatches.length) return null;
+    const raw = ipaMatches[0][1].split('|')[0].replace(/[/\[\]]/g, '').trim();
+    return raw;
+  } catch(e) { return null; }
+}
+
+function parseWiktionaryIpa(ipaStr, word) {
+  if (!ipaStr) return null;
+  const hasVoicedS = /(?<![dt])z(?![dt])/.test(ipaStr);
+  const hasVoicedZ = ipaStr.includes('dz');
+  const hasVoicelessZ = ipaStr.includes('ts');
+  const hasEpsilon = ipaStr.includes('ɛ');
+  const hasOpenO = ipaStr.includes('ɔ');
+  const tonicMatch = ipaStr.match(/ˈ([aeiouɛɔ])/);
+  let accento = null;
+  if (tonicMatch) {
+    const v = tonicMatch[1];
+    const qualita = ['ɛ','ɔ'].includes(v) ? 'aperta' : ['e','o'].includes(v) ? 'chiusa' : 'normale';
+    accento = { posizione: -1, qualita, vocale: v };
+  }
+  return {
+    word, ipa_raw: ipaStr,
+    has_epsilon: hasEpsilon, has_open_o: hasOpenO,
+    has_voiced_s: hasVoicedS, has_voiced_z: hasVoicedZ, has_voiceless_z: hasVoicelessZ,
+    source: 'wiktionary',
+    trovato: true, omografi: [], s_sonore: [],
+    z_indici_sonori: hasVoicedZ ? [0] : [],
+    accento,
+  };
+}
+
+async function doLookup(frase) {
+  const words = [...new Set((frase.match(/[a-zA-ZÀ-ù]+/g) || []).map(w => w.toLowerCase()))];
+  const results = [];
+  const needsInput = [];
+  for (const word of words) {
+    const clean = word.replace(/[^\w]/g, '');
+    if (!clean) continue;
+    const ipa = await wiktionaryLookup(clean);
+    if (ipa) {
+      const info = parseWiktionaryIpa(ipa, clean);
+      if (info && (info.has_epsilon || info.has_open_o || info.has_voiced_s || info.has_voiced_z || info.has_voiceless_z)) {
+        results.push(info);
+      }
+    } else {
+      if (clean.length > 3) needsInput.push(clean);
+    }
+  }
+  return { results, needsInput };
+}
+
+// ═══════════════════════════════════════════════════════
+// CONFRONTO TRASCRIZIONI
+// ═══════════════════════════════════════════════════════
+function normalizzaIpa(s) { return s.replace(/[\[\]\s]/g,'').trim(); }
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  let dp = Array.from({length: n+1}, (_,i) => i);
+  for (let i = 1; i <= m; i++) {
+    const prev = [...dp]; dp[0] = i;
+    for (let j = 1; j <= n; j++) {
+      dp[j] = a[i-1]===b[j-1] ? prev[j-1] : 1+Math.min(prev[j], dp[j-1], prev[j-1]);
+    }
+  }
+  return dp[n];
+}
+
+function confronta(studente, corretta) {
+  const s = normalizzaIpa(studente), c = normalizzaIpa(corretta);
+  if (s === c) return 'corretto';
+  const dist = levenshtein(s, c);
+  const ratio = dist / Math.max(s.length, c.length, 1);
+  return ratio <= 0.10 ? 'parzialmente_corretto' : 'errato';
+}
+
+// ═══════════════════════════════════════════════════════
+// STATO APP
+// ═══════════════════════════════════════════════════════
+let state = {
+  page: 0,         // 0=home 1=loading 2=input_utente 3=trascrizione 4=risultato
+  frase: '',
+  customFrase: '',
+  showCustom: false,
+  infoParole: [],
+  needsInput: [],
+  userChoices: {},  // word -> {v, sz}
+  ipaValue: '',
+  result: null,     // {trascrizione_corretta, esito, log_scontri}
+  error: '',
+};
+
+function setState(patch) { Object.assign(state, patch); render(); }
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  if (state.page === 0) app.appendChild(renderHome());
+  else if (state.page === 1) app.appendChild(renderLoading());
+  else if (state.page === 2) app.appendChild(renderInput());
+  else if (state.page === 3) app.appendChild(renderTrascrizione());
+}
+
+// ─── HOME ───────────────────────────────────────────
+function renderHome() {
+  const div = el('div');
+
+  const card = el('div','card');
+  card.appendChild(lbl('Scegli la frase'));
+
+  const row = el('div','btn-row');
+  const btnRand = btn('Estraimi una frase', true);
+  btnRand.onclick = () => {
+    const f = FRASI[Math.floor(Math.random() * FRASI.length)];
+    startLookup(f);
+  };
+  const btnCustom = btn('Inserisco la mia frase');
+  btnCustom.onclick = () => setState({ showCustom: !state.showCustom });
+  row.appendChild(btnRand);
+  row.appendChild(btnCustom);
+  card.appendChild(row);
+
+  if (state.showCustom) {
+    const inp = el('input','text-input');
+    inp.type = 'text';
+    inp.placeholder = 'Scrivi qui la tua frase…';
+    inp.value = state.customFrase;
+    inp.style.marginTop = '0.75rem';
+    inp.oninput = e => { state.customFrase = e.target.value; };
+    const btnUsa = btn('Usa questa frase →', true);
+    btnUsa.style.marginTop = '0.4rem';
+    btnUsa.onclick = () => {
+      if (state.customFrase.trim()) startLookup(state.customFrase.trim());
+    };
+    card.appendChild(inp);
+    card.appendChild(btnUsa);
+  }
+
+  if (state.error) {
+    const errDiv = el('div');
+    errDiv.style.cssText = 'font-family:var(--mono);font-size:0.78rem;color:var(--red);margin-top:0.5rem;';
+    errDiv.textContent = state.error;
+    card.appendChild(errDiv);
+  }
+
+  div.appendChild(card);
+  return div;
+}
+
+// ─── LOADING ─────────────────────────────────────────
+function renderLoading() {
+  const div = el('div','card');
+  const msg = el('div','loading-msg');
+  const sp = el('span','spinner');
+  msg.appendChild(sp);
+  msg.appendChild(txt('Ricerca nel dizionario…'));
+  div.appendChild(msg);
+  return div;
+}
+
+// ─── INPUT UTENTE ────────────────────────────────────
+function renderInput() {
+  const div = el('div');
+
+  // Frase
+  const cardFrase = el('div','card');
+  cardFrase.appendChild(lbl('Frase'));
+  const ft = el('div','frase-text'); ft.textContent = state.frase;
+  cardFrase.appendChild(ft);
+  div.appendChild(cardFrase);
+
+  // Info mancanti
+  const card = el('div','card');
+  card.appendChild(lbl('Informazioni mancanti dal dizionario'));
+  const desc = el('p');
+  desc.style.cssText = 'font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-bottom:0.75rem;';
+  desc.textContent = 'Per le parole seguenti Wiktionary non ha restituito dati. Seleziona le opzioni pertinenti, oppure lascia vuoto.';
+  card.appendChild(desc);
+
+  state.needsInput.forEach(word => {
+    const ch = state.userChoices[word] || {};
+    const block = el('div','word-input-block');
+    const wl = el('div','word-label'); wl.textContent = word;
+    block.appendChild(wl);
+
+    // vocale tonica
+    const r1 = el('div','choice-row');
+    const cl1 = el('span','choice-lbl'); cl1.textContent = 'vocale tonica e/o';
+    r1.appendChild(cl1);
+    [['e','e chiusa'],['ɛ','ɛ aperta'],['o','o chiusa'],['ɔ','ɔ aperta']].forEach(([val,lab]) => {
+      const b = el('button','cbtn' + (ch.v===val?' sel':''));
+      b.textContent = lab;
+      b.onclick = () => {
+        const cur = (state.userChoices[word]||{}).v;
+        setChoice(word,'v', cur===val ? null : val);
+      };
+      r1.appendChild(b);
+    });
+    block.appendChild(r1);
+
+    // s/z
+    const r2 = el('div','choice-row');
+    const cl2 = el('span','choice-lbl'); cl2.textContent = 's/z intervocalica';
+    r2.appendChild(cl2);
+    [['s','s sorda'],['z','z sonora'],['ts','ts'],['dz','dz']].forEach(([val,lab]) => {
+      const b = el('button','cbtn' + (ch.sz===val?' sel':''));
+      b.textContent = lab;
+      b.onclick = () => {
+        const cur = (state.userChoices[word]||{}).sz;
+        setChoice(word,'sz', cur===val ? null : val);
+      };
+      r2.appendChild(b);
+    });
+    block.appendChild(r2);
+    card.appendChild(block);
+  });
+
+  const btnProcedi = btn('Prosegui →', true);
+  btnProcedi.style.marginTop = '1rem';
+  btnProcedi.onclick = () => setState({ page: 3, ipaValue: '', result: null });
+  card.appendChild(btnProcedi);
+  div.appendChild(card);
+
+  const btnBack = btn('← Ricomincia');
+  btnBack.onclick = reset;
+  div.appendChild(btnBack);
+  return div;
+}
+
+// ─── TRASCRIZIONE ────────────────────────────────────
+function renderTrascrizione() {
+  const div = el('div');
+
+  // Frase
+  const cardFrase = el('div','card');
+  cardFrase.appendChild(lbl('Frase da trascrivere'));
+  const ft = el('div','frase-text'); ft.textContent = state.frase;
+  cardFrase.appendChild(ft);
+  const noteItems = buildNoteItems();
+  if (noteItems.length) {
+    const note = el('div','frase-note');
+    noteItems.forEach(({word,src,pp}) => {
+      const sp = el('span');
+      sp.style.marginRight = '0.75rem';
+      const em = el('em'); em.textContent = word; sp.appendChild(em);
+      const badge = el('span', 'src src-' + src); badge.textContent = src; sp.appendChild(badge);
+      sp.appendChild(txt(': ' + pp.join(', ')));
+      note.appendChild(sp);
+    });
+    cardFrase.appendChild(note);
+  }
+  div.appendChild(cardFrase);
+
+  // Tastiera IPA
+  const kb = el('div','ipa-kb');
+  Object.entries(IPA_SYMS).forEach(([group,syms]) => {
+    const g = el('div','ipa-group');
+    const gl = el('span','ipa-group-label'); gl.textContent = group; g.appendChild(gl);
+    const keys = el('div','ipa-keys');
+    syms.forEach(sym => {
+      const k = el('button','ipa-key'); k.textContent = sym;
+      k.onclick = () => insertSym(sym);
+      keys.appendChild(k);
+    });
+    g.appendChild(keys); kb.appendChild(g);
+  });
+  div.appendChild(kb);
+
+  // Textarea
+  const ta = document.createElement('textarea');
+  ta.id = 'ipa-input';
+  ta.placeholder = 'Scrivi qui la tua trascrizione IPA…';
+  ta.spellcheck = false;
+  ta.value = state.ipaValue;
+  ta.oninput = e => { state.ipaValue = e.target.value; };
+  div.appendChild(ta);
+
+  // Bottoni
+  const row = el('div','btn-row');
+  const btnVerifica = btn('Verifica', true);
+  btnVerifica.disabled = !state.ipaValue.trim();
+  btnVerifica.onclick = () => verifica();
+  const btnSol = btn('Mostra soluzione');
+  btnSol.onclick = () => mostraSoluzione();
+  const btnBack = btn('← Ricomincia');
+  btnBack.onclick = reset;
+  row.appendChild(btnVerifica); row.appendChild(btnSol); row.appendChild(btnBack);
+  div.appendChild(row);
+
+  // Risultato
+  if (state.result) {
+    div.appendChild(renderRisultato());
+  }
+
+  return div;
+}
+
+function renderRisultato() {
+  const r = state.result;
+  const card = el('div','card');
+  card.style.marginTop = '1rem';
+
+  if (!r.soloSol) {
+    const esitoMap = {
+      corretto: ['Corretto ✓','esito-corretto'],
+      parzialmente_corretto: ['Parzialmente corretto','esito-parziale'],
+      errato: ['Errato','esito-errato'],
+    };
+    const [etiq, cls] = esitoMap[r.esito] || ['Errato','esito-errato'];
+    const badge = el('span','esito-badge ' + cls); badge.textContent = etiq;
+    card.appendChild(badge);
+    card.appendChild(el('hr','divider'));
+  }
+
+  card.appendChild(lbl('Trascrizione corretta'));
+  const code = el('code','ipa-result'); code.textContent = r.trascrizione_corretta;
+  card.appendChild(code);
+
+  if (r.log_scontri && r.log_scontri.length) {
+    card.appendChild(lbl('Scontri accentuali risolti'));
+    r.log_scontri.forEach(s => {
+      const d = el('div','log-item'); d.textContent = s; card.appendChild(d);
+    });
+  }
+
+  return card;
+}
+
+// ═══════════════════════════════════════════════════════
+// AZIONI
+// ═══════════════════════════════════════════════════════
+async function startLookup(frase) {
+  setState({ frase, page: 1, error: '', result: null, ipaValue: '', userChoices: {} });
+  const { results, needsInput } = await doLookup(frase);
+  setState({ infoParole: results, needsInput });
+  if (needsInput.length > 0) {
+    setState({ page: 2 });
+  } else {
+    setState({ page: 3 });
+  }
+}
+
+function setChoice(word, key, val) {
+  const prev = state.userChoices[word] || {};
+  const updated = {...prev};
+  if (val === null) delete updated[key]; else updated[key] = val;
+  state.userChoices = {...state.userChoices, [word]: updated};
+  render();
+}
+
+function getEffectiveWiktFn() {
+  const map = {};
+  state.infoParole.forEach(info => { map[info.word] = info; });
+  return function(parola) {
+    const p = parola.toLowerCase().trim();
+    if (map[p]) return map[p];
+    const ch = state.userChoices[p] || {};
+    const v = ch.v || null;
+    const sz = ch.sz || null;
+    const qualita = ['ɛ','ɔ'].includes(v) ? 'aperta' : ['e','o'].includes(v) ? 'chiusa' : 'normale';
+    return {
+      trovato: true, omografi: [], s_sonore: [],
+      z_indici_sonori: sz === 'dz' ? [0] : [],
+      accento: v ? { posizione: -1, qualita, vocale: v } : null,
+      has_voiced_s: sz === 'z', has_voiced_z: sz === 'dz',
+      has_voiceless_z: sz === 'ts', has_epsilon: v === 'ɛ',
+      has_open_o: v === 'ɔ', source: 'utente',
+    };
+  };
+}
+
+function verifica() {
+  const wf = getEffectiveWiktFn();
+  const res = trascrivi(state.frase, wf);
+  if (res.richiesta_utente) { setState({ error: res.messaggio }); return; }
+  const esito = confronta(state.ipaValue, res.trascrizione);
+  setState({ result: { trascrizione_corretta: res.trascrizione, esito, log_scontri: res.log_scontri, soloSol: false } });
+}
+
+function mostraSoluzione() {
+  const wf = getEffectiveWiktFn();
+  const res = trascrivi(state.frase, wf);
+  if (res.richiesta_utente) { setState({ error: res.messaggio }); return; }
+  setState({ result: { trascrizione_corretta: res.trascrizione, esito: 'corretto', log_scontri: res.log_scontri, soloSol: true } });
+}
+
+function reset() {
+  state = { page:0, frase:'', customFrase:'', showCustom:false, infoParole:[], needsInput:[], userChoices:{}, ipaValue:'', result:null, error:'' };
+  render();
+}
+
+function insertSym(sym) {
+  const ta = document.getElementById('ipa-input');
+  if (!ta) return;
+  const st = ta.selectionStart, en = ta.selectionEnd;
+  const newVal = state.ipaValue.slice(0,st) + sym + state.ipaValue.slice(en);
+  state.ipaValue = newVal;
+  render();
+  setTimeout(() => {
+    const t = document.getElementById('ipa-input');
+    if (t) { t.selectionStart = t.selectionEnd = st + sym.length; t.focus(); }
+  }, 0);
+}
+
+function buildNoteItems() {
+  const items = [];
+  state.infoParole.forEach(info => {
+    const pp = [];
+    if (info.has_epsilon) pp.push('e→ɛ');
+    if (info.has_open_o) pp.push('o→ɔ');
+    if (info.has_voiced_s) pp.push('s→z');
+    if (info.has_voiced_z) pp.push('z→dz');
+    if (info.has_voiceless_z) pp.push('z→ts');
+    if (pp.length) items.push({ word: info.word, src: 'wiktionary', pp });
+  });
+  Object.entries(state.userChoices).forEach(([w,ch]) => {
+    const pp = [];
+    if (ch.v) pp.push(`vocale→${ch.v}`);
+    if (ch.sz) pp.push(`sz→${ch.sz}`);
+    if (pp.length) items.push({ word: w, src: 'utente', pp });
+  });
+  return items;
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS DOM
+// ═══════════════════════════════════════════════════════
+function el(tag, cls='') {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  return e;
+}
+function txt(s) { return document.createTextNode(s); }
+function lbl(s) { const e = el('span','label'); e.textContent = s; return e; }
+function btn(label, primary=false) {
+  const b = el('button', 'btn' + (primary?' btn-primary':''));
+  b.textContent = label;
+  return b;
+}
+
+// ═══════════════════════════════════════════════════════
+// ALGORITMO DI TRASCRIZIONE (JS port di trascrizione.py)
+// ═══════════════════════════════════════════════════════
+
+const VOCALI = new Set('aeiouàèéòóùìɛɔ');
+const VOCALI_ACCENTATE = new Set('àèéòóùì');
+const VOCALI_ATONE = new Set('aeiouɛɔ');
+const CONSONANTI_SONORE = new Set('bdgvlmnr');
+const AFFRICATE_DOPPIE = ['ttʃ','ddʒ','tts','ddz'];
+const AFFRICATE_SCEMPIE = ['tʃ','dʒ','ts','dz'];
+
+const LISTA_ACUTO = new Set(['sé','né','perché','affinché','benché','poiché','giacché','finché','sicché','poté']);
+const PAROLE_ATTIVANTI = new Set(['qualche','che','e','ma','o','se','a','su','i','ho','ha','hai','fa','va','sa','sta']);
+const PAROLE_RADDOPPIO_INIZIALE = new Set(['dio','dea','dei','dee']);
+const LETTERE_ALFABETO = {A:'à',B:'bbì',C:'ccì',D:'ddì',E:'è',F:'èffe',G:'ggì',H:'àcca',I:'ì',J:'ggèi',K:'kàppa',L:'èlle',M:'èmme',N:'ènne',O:'ò',P:'ppì',Q:'ccù',R:'èrre',S:'èsse',T:'ttì',U:'ù',V:'vvì',W:'dòppjavvì',X:'ìks',Y:'ìpsilon',Z:'zzèta'};
+
+function isVocale(c) { return VOCALI.has(c); }
+function isConsonante(c) { return c && !VOCALI.has(c) && !['|','$','.','\'','ˌ','ˈ'].includes(c); }
+function isVocaleAccentata(c) { return VOCALI_ACCENTATE.has(c); }
+
+function tokenizza(testo) {
+  const matches = testo.match(/[.,;:!?]|[^\s.,;:!?]+/g) || [];
+  return matches;
+}
+
+function contaVocaliAccentateNonFinali(parola) {
+  let count = 0;
+  for (let i = 0; i < parola.length-1; i++) {
+    if (VOCALI_ACCENTATE.has(parola[i])) count++;
+  }
+  return count;
+}
+
+function haVocaleAccentataNoFinale(parola) {
+  for (let i = 0; i < parola.length-1; i++) {
+    if (VOCALI_ACCENTATE.has(parola[i])) return true;
+  }
+  return false;
+}
+
+function isMonosillabo(parola) {
+  return [...parola].filter(c => VOCALI.has(c)).length === 1;
+}
+
+function forzaAccento(parola) {
+  const pl = parola.toLowerCase().replace(/[.,;:!?]/g,'');
+  if (LISTA_ACUTO.has(pl)) {
+    return parola.replace(/[eè]/i, 'é');
+  } else {
+    return parola.replace(/é/g,'è').replace(/ó/g,'ò');
+  }
+}
+
+function traslittera(p) {
+  const VOCALI_PIENE = 'aàeèéoòóuù';
+  const seguitoDaVocalePiena = (s, pos, len) => {
+    const idx = pos + len;
+    return idx < s.length && VOCALI_PIENE.includes(s[idx]);
+  };
+
+  // Funzione ausiliaria per sostituzione iterativa
+  function sostituisci(p, rules) {
+    let result = '';
+    let i = 0;
+    while (i < p.length) {
+      let matched = false;
+      for (const [from, to, cond] of rules) {
+        if (p.slice(i, i+from.length) === from) {
+          if (!cond || cond(p, i, from.length)) {
+            result += to;
+            i += from.length;
+            matched = true;
+            break;
+          }
+        }
+      }
+      if (!matched) { result += p[i]; i++; }
+    }
+    return result;
+  }
+
+  // sc
+  p = sostituisci(p, [
+    ['sci', 'ʃ', (s,i,l) => seguitoDaVocalePiena(s,i,l)],
+    ['scì', 'ʃì'],
+    ['sci', 'ʃi'],
+    ['sce', 'ʃe'],
+    ['scé', 'ʃé'],
+    ['scè', 'ʃè'],
+  ]);
+  // cci
+  p = sostituisci(p, [
+    ['cci', 'ttʃ', (s,i,l) => seguitoDaVocalePiena(s,i,l)],
+    ['cci', 'ttʃi'],
+    ['ccì', 'ttʃì'],
+    ['cce', 'ttʃe'],
+    ['ccè', 'ttʃè'],
+    ['ccé', 'ttʃé'],
+  ]);
+  // ci
+  p = sostituisci(p, [
+    ['ci', 'tʃ', (s,i,l) => seguitoDaVocalePiena(s,i,l)],
+    ['ci', 'tʃi'],
+    ['cì', 'tʃì'],
+    ['ce', 'tʃe'],
+    ['cè', 'tʃè'],
+    ['cé', 'tʃé'],
+  ]);
+  // c -> k
+  p = p.replace(/c/g,'k').replace(/C/g,'K');
+  // sh -> ʃ
+  p = p.replace(/sh/g,'ʃ');
+  // gli
+  p = sostituisci(p, [
+    ['gli', 'ʎ', (s,i,l) => seguitoDaVocalePiena(s,i,l)],
+    ['glì', 'ʎì'],
+    ['gli', 'ʎi'],
+  ]);
+  // ggi
+  p = sostituisci(p, [
+    ['ggi', 'ddʒ', (s,i,l) => seguitoDaVocalePiena(s,i,l)],
+    ['ggì', 'ddʒì'],
+    ['ggi', 'ddʒi'],
+    ['gge', 'ddʒe'],
+    ['ggè', 'ddʒè'],
+    ['ggé', 'ddʒé'],
+  ]);
+  // gi
+  p = sostituisci(p, [
+    ['gi', 'dʒ', (s,i,l) => seguitoDaVocalePiena(s,i,l)],
+    ['gì', 'dʒì'],
+    ['gi', 'dʒi'],
+    ['ge', 'dʒe'],
+    ['gè', 'dʒè'],
+    ['gé', 'dʒé'],
+  ]);
+  // gn
+  p = sostituisci(p, [
+    ['gni', 'ɲ', (s,i,l) => seguitoDaVocalePiena(s,i,l)],
+    ['gn', 'ɲ'],
+  ]);
+  // ġ -> g
+  p = p.replace(/ġ/g,'g').replace(/Ġ/g,'G');
+  // h -> ''
+  p = p.replace(/h/g,'').replace(/H/g,'');
+  // q -> k
+  p = p.replace(/q/g,'k').replace(/Q/g,'K');
+  // ṣ -> z
+  p = p.replace(/ṣ/g,'z');
+
+  return p;
+}
+
+function raddoppiaFinalePrestiti(parola) {
+  if (parola.length < 2) return parola;
+  const ultima = parola[parola.length-1];
+  const penultima = parola[parola.length-2];
+  if (!'lmnr'.includes(ultima) && !VOCALI.has(ultima) && VOCALI.has(penultima)) {
+    return parola + ultima;
+  }
+  return parola;
+}
+
+function elaboraParola(parola, wiktFn) {
+  // Lettera alfabeto isolata
+  if (LETTERE_ALFABETO[parola]) {
+    return { frammento: LETTERE_ALFABETO[parola] + '$', richiesta: false };
+  }
+
+  if (contaVocaliAccentateNonFinali(parola) > 1) {
+    return { frammento: parola, richiesta: true, msg: `La parola "${parola}" ha più di un segnaccento. Riscrivila con uno solo.` };
+  }
+
+  let haSegnaccento = haVocaleAccentataNoFinale(parola);
+
+  if (isMonosillabo(parola)) {
+    parola = forzaAccento(parola);
+  }
+
+  // Wiktionary lookup
+  const ris = wiktFn(parola.toLowerCase().replace(/[^a-zà-ùɛɔ]/gi,''));
+
+  if (!ris.trovato) {
+    return { frammento: parola, richiesta: true, msg: `La parola "${parola}" non è stata trovata. Fornisci la trascrizione manualmente.` };
+  }
+
+  // Applica s/z da Wiktionary
+  if (ris.has_voiced_s) {
+    parola = parola.replace(/(?<=[aeiouàèéòóùì])s(?=[aeiouàèéòóùì])/g, 'ṣ');
+  }
+  parola = parola.replace(/z/g, ris.has_voiced_z ? 'dz' : 'ts');
+
+  // Accento da Wiktionary
+  if (!haSegnaccento && ris.accento) {
+    const q = ris.accento.qualita, v = ris.accento.vocale;
+    if (q === 'aperta') {
+      parola = parola.replace(/(?<![àèéòóùì])e(?![àèéòóùì])/i, 'è');
+      parola = parola.replace(/(?<![àèéòóùì])o(?![àèéòóùì])/i, 'ò');
+    } else if (q === 'chiusa') {
+      parola = parola.replace(/(?<![àèéòóùì])e(?![àèéòóùì])/i, 'é');
+      parola = parola.replace(/(?<![àèéòóùì])o(?![àèéòóùì])/i, 'ó');
+    }
+  }
+
+  // Traslitterazione
+  parola = traslittera(parola);
+
+  // Raddoppiamento finale prestiti
+  parola = raddoppiaFinalePrestiti(parola);
+
+  return { frammento: parola + '$', richiesta: false };
+}
+
+function pulisciDoppiepausa(frase) {
+  // Consonante doppia prima di | o $
+  frase = frase.replace(/(.)\1(\|)/g, '$1$2');
+  frase = frase.replace(/(.)\1(\$)$/g, '$1$2');
+  return frase;
+}
+
+function raddoppiamentoFonosintattico(frase) {
+  // 3a: parole con raddoppiamento iniziale fisso (dio, dea, dei, dee)
+  for (const parola of PAROLE_RADDOPPIO_INIZIALE) {
+    const re = new RegExp('([aeiouàèéòóùìɛɔ|])\\$(' + parola + ')', 'g');
+    frase = frase.replace(re, (m, pre, p) => pre + '$' + p[0] + p);
+  }
+
+  // 3b: RF dopo vocale tonica finale
+  const vAcc = 'àèéòóùì';
+  const reRf = new RegExp(`([${vAcc}])\\$([bdgvlmnrptkfszʃʎɲ])(?![bdgvlmnrptkfszʃʎɲ])`, 'g');
+  frase = frase.replace(reRf, (m, v, c) => v + c + c);
+
+  // 3c: RF dopo parole attivanti
+  for (const att of PAROLE_ATTIVANTI) {
+    const re = new RegExp(att.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\$([bdgvlmnrptkfszʃʎɲ])(?![bdgvlmnrptkfszʃʎɲ])', 'g');
+    frase = frase.replace(re, (m, c) => att + c + c);
+  }
+
+  // 3d: rimuovi tutti i $
+  frase = frase.replace(/\$/g, '');
+  return frase;
+}
+
+function autogeminazioni(frase) {
+  const CONS = new Set('bdgvlmnrptkfszʃʎɲ');
+  function isC(c) { return c && CONS.has(c); }
+
+  // Processo dall'inizio, cerchiamo i simboli autogeminabili
+  const simboli = [
+    { sym: 'ts', rad: 'tts' },
+    { sym: 'dz', rad: 'ddz' },
+    { sym: 'ʃ', rad: 'ʃʃ' },
+    { sym: 'ʎ', rad: 'ʎʎ' },
+    { sym: 'ɲ', rad: 'ɲɲ' },
+  ];
+
+  for (const { sym, rad } of simboli) {
+    let i = 0;
+    let result = '';
+    while (i < frase.length) {
+      if (frase.slice(i, i+sym.length) === sym) {
+        const pre = i > 0 ? frase[i-1] : null;
+        const post = frase[i+sym.length] || null;
+        const preOk = !pre || !isC(pre);
+        const postOk = !post || !isC(post);
+        if (preOk && postOk) {
+          result += rad;
+        } else {
+          result += sym;
+        }
+        i += sym.length;
+      } else {
+        result += frase[i];
+        i++;
+      }
+    }
+    frase = result;
+  }
+  return frase;
+}
+
+function eliminaIPalatali(frase) {
+  const palatali = ['ʃi','ʎi','ɲi','tʃi','dʒi'];
+  const VOCALI_STR = 'aeiouàèéòóùìɛɔ';
+  for (const pal of palatali) {
+    const base = pal.slice(0,-1);
+    const re = new RegExp(pal.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + `(?=[${VOCALI_STR}])`, 'g');
+    frase = frase.replace(re, base);
+  }
+  return frase;
+}
+
+function sonorizzaS(frase) {
+  const SONORE = 'bdgvlmnr';
+  let result = [...frase];
+  for (let i = 0; i < result.length; i++) {
+    if (result[i] === 's') {
+      const pre = i > 0 ? result[i-1] : null;
+      const post = result[i+1] || null;
+      if (post && SONORE.includes(post) && pre !== 's') {
+        result[i] = 'z';
+      }
+    }
+  }
+  return result.join('');
+}
+
+// Sillabificazione
+function tokenizzaFonetica(s) {
+  const tokens = [];
+  let i = 0;
+  while (i < s.length) {
+    let matched = false;
+    for (const aff of [...AFFRICATE_DOPPIE, ...AFFRICATE_SCEMPIE]) {
+      if (s.slice(i, i+aff.length) === aff) {
+        tokens.push(aff); i += aff.length; matched = true; break;
+      }
+    }
+    if (!matched) { tokens.push(s[i]); i++; }
+  }
+  return tokens;
+}
+
+function sillabifica(frase) {
+  const VOCALI_SET = new Set('aeiouàèéòóùìɛɔ');
+  const LIQUIDE = new Set('lr');
+  const OSTRUENTI = new Set('pbtdkgfvszʃtʃdʒtsdz');
+
+  const isV = c => VOCALI_SET.has(c[0]);
+  const isC = c => c && !VOCALI_SET.has(c[0]) && c !== '|' && c !== '.';
+
+  const blocchi = frase.split('|');
+  const risultati = [];
+
+  for (const blocco of blocchi) {
+    if (!blocco) { risultati.push(''); continue; }
+    const tokens = tokenizzaFonetica(blocco);
+    const n = tokens.length;
+    const punti = new Array(n).fill(false);
+
+    let i = 0;
+    while (i < n) {
+      if (!isV(tokens[i])) { i++; continue; }
+
+      // Raccoglie consonanti fino alla prossima vocale
+      let j = i+1;
+      const cons = [];
+      while (j < n && !isV(tokens[j])) { cons.push([j, tokens[j]]); j++; }
+      const hasNextV = j < n;
+      const nc = cons.length;
+
+      if (nc === 0) {
+        if (hasNextV) punti[j] = true; // V.V
+      } else if (nc === 1) {
+        const [idx, c] = cons[0];
+        if (hasNextV) {
+          if (AFFRICATE_DOPPIE.includes(c)) {
+            // affricata doppia: Vt.tʃV — punto PRIMA e poi interno
+            // Per semplicità: punto prima del token affricato doppio
+            // poi nella stampa lo splittiamo
+            punti[idx] = true;
+          } else {
+            // tutto con incipit (consonante singola, affricata scempia, ecc.)
+            punti[idx] = true;
+          }
+        }
+      } else if (nc === 2) {
+        const [idx1, c1] = cons[0];
+        const [idx2, c2] = cons[1];
+        if (c1 === c2) {
+          // doppia: VC.CV
+          if (hasNextV) punti[idx2] = true;
+        } else if (c1 === 's' || c1 === 'z') {
+          // s/z + C
+          if (i > 0) punti[idx1] = true; // non inizio blocco
+          if (hasNextV) punti[idx2] = true;
+        } else if (LIQUIDE.has(c2[0]) && OSTRUENTI.has(c1[0])) {
+          // nesso indivisibile: V.C1C2V
+          if (hasNextV) punti[idx1] = true;
+        } else {
+          // VC1.C2V
+          if (hasNextV) punti[idx2] = true;
+        }
+      } else {
+        // 3+ consonanti
+        const [idx1, c1] = cons[0];
+        const [idx2, c2] = cons[1];
+        const [idx3, c3] = cons[2];
+        if (c1 === 's' || c1 === 'z') {
+          if (i > 0) punti[idx1] = true;
+          if (LIQUIDE.has(c3[0]) && OSTRUENTI.has(c2[0])) {
+            // s + nesso indivisibile: tutto incipit
+          } else {
+            if (hasNextV) punti[idx3] = true;
+          }
+        } else {
+          if (hasNextV) punti[idx2] = true;
+        }
+      }
+      i++;
+    }
+
+    // Costruisci stringa con punti e gestione affricate doppie
+    let parti = '';
+    for (let k = 0; k < tokens.length; k++) {
+      const t = tokens[k];
+      if (punti[k] && k > 0) {
+        if (AFFRICATE_DOPPIE.includes(t)) {
+          // Vt.tʃV: il punto va tra i due elementi
+          const meta = Math.ceil(t.length / 2);
+          parti += t.slice(0, meta) + '.' + t.slice(meta);
+          continue;
+        }
+        parti += '.' + t;
+      } else {
+        parti += t;
+      }
+    }
+    risultati.push(parti);
+  }
+
+  return risultati.join('|');
+}
+
+function individuaJW(frase) {
+  const VOCALI_STR = 'aeiouàèéòóùìɛɔ';
+  // i non accentata + vocale
+  frase = frase.replace(/i(?=[aeiouàèéòóùìɛɔ])/g, 'j');
+  // u non accentata + vocale
+  frase = frase.replace(/u(?=[aeiouàèéòóùìɛɔ])/g, 'w');
+  return frase;
+}
+
+function sinalefe(frase) {
+  const AT = 'aeiouɛɔ';
+  // elimina punto tra vocale atona e vocale atona
+  frase = frase.replace(new RegExp(`([${AT}])\\.([${AT}])`, 'g'), '$1$2');
+  // elimina tutti i |
+  frase = frase.replace(/\|/g, '');
+  return frase;
+}
+
+function costruisciSillabe(frase) {
+  const parti = frase.split('.');
+  if (!parti.length) return [];
+  const sillabe = [parti[0]];
+  for (let k = 1; k < parti.length; k++) sillabe.push('.' + parti[k]);
+  return sillabe;
+}
+
+const MAPPA_ACCENTO = { 'à':'a','ì':'i','é':'e','ó':'o','ù':'u','è':'ɛ','ò':'ɔ' };
+
+function marcaToniche(sillabe) {
+  return sillabe.map(sillaba => {
+    for (const [acc, base] of Object.entries(MAPPA_ACCENTO)) {
+      if (sillaba.includes(acc)) {
+        const nuova = sillaba.replace(acc, base);
+        if (nuova.startsWith('.')) return '.ˈ' + nuova.slice(1);
+        return 'ˈ' + nuova;
+      }
+    }
+    return sillaba;
+  });
+}
+
+function risolviScontri(sillabe) {
+  const log = [];
+  let cambiamento = true;
+  while (cambiamento) {
+    cambiamento = false;
+    for (let i = 0; i < sillabe.length-1; i++) {
+      const s1 = sillabe[i].replace(/^\./,'');
+      const s2 = sillabe[i+1].replace(/^\./,'');
+      if (s1.startsWith('ˈ') && s2.startsWith('ˈ')) {
+        const punto = sillabe[i].startsWith('.') ? '.' : '';
+        sillabe[i] = punto + sillabe[i].replace(/^\./,'').slice(1);
+        log.push(`Scontro accentuale: deaccentata "${sillabe[i]}" prima di "${sillabe[i+1]}"`);
+        cambiamento = true;
+      }
+    }
+  }
+  return { sillabe, log };
+}
+
+function risolviValli(sillabe) {
+  const isAtona = s => { const c = s.replace(/^\./,''); return !c.startsWith('ˈ') && !c.startsWith('ˌ'); };
+  let cambiamento = true;
+  while (cambiamento) {
+    cambiamento = false;
+    for (let i = 0; i < sillabe.length-2; i++) {
+      if (isAtona(sillabe[i]) && isAtona(sillabe[i+1]) && isAtona(sillabe[i+2])) {
+        const punto = sillabe[i+1].startsWith('.') ? '.' : '';
+        sillabe[i+1] = punto + 'ˌ' + sillabe[i+1].replace(/^\./,'');
+        cambiamento = true;
+      }
+    }
+  }
+  return sillabe;
+}
+
+function trascrivi(testo, wiktFn) {
+  // FASE 1: ciclo sui frammenti
+  const frammenti = tokenizza(testo);
+  let frase = '';
+
+  for (const fr of frammenti) {
+    if ('.,;:!?'.includes(fr)) { frase += '|'; continue; }
+    const { frammento, richiesta, msg } = elaboraParola(fr, wiktFn);
+    if (richiesta) return { trascrizione: '', log_scontri: [], richiesta_utente: true, messaggio: msg };
+    frase += frammento;
+  }
+
+  // FASE 2: pulizia doppie prima di pausa
+  frase = pulisciDoppiepausa(frase);
+
+  // FASE 3: RF
+  frase = raddoppiamentoFonosintattico(frase);
+
+  // FASE 4: autogeminazioni
+  frase = autogeminazioni(frase);
+
+  // FASE 5: elimina i dopo palatali
+  frase = eliminaIPalatali(frase);
+
+  // FASE 6: sonorizzazione s
+  frase = sonorizzaS(frase);
+
+  // FASE 7: sillabificazione
+  frase = sillabifica(frase);
+
+  // FASE 8: j e w
+  frase = individuaJW(frase);
+
+  // FASE 9: sinalefe
+  frase = sinalefe(frase);
+
+  // FASE 10: costruisci sillabe
+  let sillabe = costruisciSillabe(frase);
+
+  // FASE 11: marca toniche
+  sillabe = marcaToniche(sillabe);
+
+  // FASE 12: scontri accentuali
+  const { sillabe: s2, log } = risolviScontri(sillabe);
+  sillabe = s2;
+
+  // FASE 13: valli accentuali
+  sillabe = risolviValli(sillabe);
+
+  // FASE 14: output
+  const trascrizione = '[' + sillabe.join('') + ']';
+  return { trascrizione, log_scontri: log, richiesta_utente: false, messaggio: '' };
+}
+
+// ═══════════════════════════════════════════════════════
+// AVVIO
+// ═══════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
