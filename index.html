@@ -226,317 +226,417 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di fonetica italiana</h1>
-  <p class="subtitle">Trascrizione IPA · Convenzioni del corso · v1.3.0</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.0.0</p>
   <div id="app"></div>
-  <footer>Laboratorio di fonetica italiana · v1.3.0</footer>
+  <footer>© 2026 Salvatore Menza · DISUM, Università di Catania · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5b283a372d3a2f34293e75363e35213a1b2e3532382f75322f">[email&#160;protected]</a> · v2.0.0</footer>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════════════════════════════════════════════
 // FRASI
 // ═══════════════════════════════════════════════════════
 const FRASI = [
   "Il filosofo ha bevuto un caffè con lo zucchero sopra il mappamondo.",
-  "Quella zebra suona il sassofono davanti a una cascata di yogurt, non per forza.",
+  "Quella zebra suona il sassofono davanti a una cascata di yogurt, non per forza in modo buffo.",
   "Ho visto che il sindaco ha regalato un cactus a ogni vigile del fuoco.",
-  "La principessa mangia spaghetti al cioccolato in cima alla torre.",
-  "Quel gatto selvatico ha convinto il dentista a indossare un elmo.",
-  "Lo studente di fisica ha lanciato un orologio dal quinto piano.",
-  "La volpe rossa ha comprato diciassette scarpe da sci in luglio.",
-  "Quel trombettista suona la ninna nanna ai pesci rossi del vicino.",
-  "Ho capito che il bidello conserva funghi nel cassetto della cattedra.",
-  "La cuoca bizzarra ha aggiunto sette chiodi alla zuppa di cipolle.",
-  "Il professore di chimica tesse sciarpe durante le interrogazioni.",
-  "Quella lumaca velocissima ha vinto il campionato di salto in alto.",
-  "Ho sentito che il notaio colleziona denti di elefante in soffitta.",
-  "Il meccanico scrive poesie col grasso dei motori ogni martedì.",
-  "Quella gallina filosofa rifiuta di mangiare se non legge Kant prima.",
+  "La principessa mangia spaghetti al cioccolato in cima a una torre bellissima però pericolosa.",
+  "Quel gatto selvatico ha convinto il dentista a indossare un elmo con puntualità.",
+  "Lo studente di fisica ha lanciato un orologio dal quinto piano con pazienza.",
+  "La volpe rossa ha comprato diciassette scarpe da sci in luglio con foga.",
+  "Quel trombettista suona la ninna nanna con un pesce al posto della bacchetta, con felicità.",
+  "Ho capito che il bidello conserva funghi nel cassetto della cattedra con perizia.",
+  "La cuoca bizzarra ha aggiunto sette chiodi alla zuppa di cipolle in modo molto particolare.",
+  "Il professore di chimica tesse sciarpe durante le interrogazioni con precisione.",
+  "Quella lumaca velocissima ha vinto il campionato di salto in alto in modo formidabile.",
+  "Ho sentito che il notaio colleziona denti di elefante in soffitta con pietà.",
+  "Il meccanico scrive poesie col grasso dei motori ogni martedì con garbo.",
+  "Quella gallina filosofa rifiuta di mangiare se non legge Kant prima in modo bizzarro.",
   "Il postino ha consegnato una lettera a un fungo in mezzo al bosco.",
-  "Lo zoologo ha scoperto che i piccioni capiscono il greco antico.",
-  "Quella maestra di yoga insegna agli scoiattoli a fare la verticale.",
-  "Ho visto il vigile fischiare a una nuvola che passava col rosso.",
-  "Il cardiologo colleziona bottoni e li conta ogni sera prima di dormire.",
-  "Quella scatola di cioccolatini ha convinto il gatto a studiare il flauto.",
-  "Lo spazzino raccoglie sogni caduti sul marciapiede ogni lunedì.",
-  "Ho sentito che il direttore d'orchestra alleva api nel seminterrato.",
+  "Lo zoologo ha scoperto che i piccioni capiscono il greco antico in Francia.",
+  "Quella maestra di yoga insegna agli scoiattoli a fare la verticale con felicità.",
+  "Ho visto il vigile fischiare a una nuvola che passava col rosso in piazza.",
+  "Il cardiologo colleziona bottoni e li conta ogni sera prima di dormire con modestia.",
+  "Quella scatola di cioccolatini ha convinto il gatto a studiare il flauto in modo preciso.",
+  "Lo spazzino raccoglie sogni caduti sul marciapiede ogni lunedì in Perù.",
+  "Ho sentito che il direttore d'orchestra alleva api nel seminterrato con bravura.",
   "La babysitter ha insegnato al bambino a urlare in codice Morse.",
-  "Quel pescatore ha trovato una valigia piena di quaderni sott'acqua.",
-  "Il falegname costruisce mobili che scompaiono durante la notte.",
-  "Quella nuvola testarda non vuole piovere sopra i campi di grano.",
-  "Ho capito che il fabbro trasforma chiavi in sculture astratte.",
-  "La pensionata alleva piovre sul balcone del quarto piano.",
+  "Quel pescatore ha trovato una valigia piena di quaderni sott'acqua con fierezza.",
+  "Il falegname costruisce mobili che scompaiono durante la notte con parsimonia.",
+  "Quella nuvola testarda non vuole piovere su un campo di grano, però non per pigrizia.",
+  "Ho capito che il fabbro trasforma chiavi in sculture astratte in punta di piedi.",
+  "La pensionata alleva piovre in Bolivia con un metodo personalissimo però efficace.",
   "Quel bambino prodigio ha risolto un cubo di Rubik con i piedi.",
-  "Il macellaio suona la cornamusa ogni volta che taglia il prosciutto.",
-  "Quella formica operaia ha scioperato per ottenere ferie pagate.",
-  "Ho visto che il giardiniere parla alle piante in dialetto siciliano.",
+  "Il macellaio suona la cornamusa ogni volta che taglia il prosciutto in pantofole.",
+  "Quella formica operaia ha scioperato per ottenere ferie pagate con baldanza.",
+  "Ho visto che il giardiniere parla alle piante in dialetto siciliano con vigore.",
   "La biologa marina ha trovato un cellulare funzionante dentro una medusa.",
-  "Quel ciclista pedala con un ombrello aperto anche quando non piove.",
-  "Il commissario ha arrestato un semaforo per comportamento sospetto.",
-  "Quella cozza arrogante rifiuta di aprirsi per chi non dice per favore.",
-  "Ho sentito che l'astrofisico indossa pigiama a stelle anche di giorno.",
-  "La dentista ha estratto un dente che suonava la tromba.",
-  "Quel pompiere colleziona nuvole dentro barattoli di marmellata vuoti.",
-  "Il monaco tibetano ha perso le pantofole su un autobus a Milano.",
-  "Quella statua di marmo ha starnutito durante la cerimonia ufficiale.",
-  "Ho capito che il farmacista misura le distanze con spaghetti crudi.",
+  "Quel ciclista pedala con un piede solo anche in piazza però con fierezza però ci riesce.",
+  "Il commissario ha arrestato un semaforo per comportamento sospetto in Bolivia.",
+  "Quella cozza arrogante non si apre per chi non porta un fiore però così però decisa però.",
+  "Ho sentito che l'astrofisico indossa pigiama a stelle anche di giorno in modo buffo.",
+  "La dentista ha estratto un dente che suonava la tromba con puntualità.",
+  "Quel pompiere colleziona nuvole in barattoli con un pennello però non sa aprirli più però.",
+  "Il monaco tibetano ha perso le pantofole su un autobus a Milano con pazienza.",
+  "Quella statua di marmo ha starnutito durante la cerimonia ufficiale con foga.",
+  "Ho capito che il farmacista misura le distanze con spaghetti crudi con perizia.",
   "La trapezista ha deciso di aprire una gelateria in cima al circo.",
-  "Quel gufo notturno frequenta corsi di ceramica il martedì pomeriggio.",
-  "Il banchiere nasconde monete nella cravatta durante le riunioni.",
-  "Quella piovra ambidestra suona il pianoforte con sei tentacoli.",
+  "Quel gufo notturno frequenta corsi di ceramica il martedì pomeriggio in modo molto particolare.",
+  "Un banchiere di quel tipo nasconde monete in un cassetto però poi non le ritrova più.",
+  "Quella piovra ambidestra suona con un piede il pianoforte però sbaglia però però però però.",
   "Ho visto un gatto con gli occhiali correggere compiti in cucina.",
-  "La nonna anarchica ha dipinto il frigorifero di rosso a strisce verdi.",
-  "Quel coccodrillo timido chiede scusa ogni volta che apre la bocca.",
-  "Il tassista porta sempre con sé un dizionario di sanscrito.",
-  "Quella volpe urbana fa shopping al supermercato ogni giovedì sera.",
-  "Ho sentito che il chimico mette il sale nella tisana per abitudine.",
-  "La contadina ha piantato orologi nel campo invece del grano.",
+  "La nonna anarchica ha dipinto il frigorifero di rosso a strisce verdi con precisione.",
+  "Quel coccodrillo timido chiede scusa ogni volta che apre la bocca in modo formidabile.",
+  "Il tassista porta sempre con sé un dizionario di sanscrito con pietà.",
+  "Quella volpe urbana fa shopping al supermercato ogni giovedì sera con garbo.",
+  "Ho sentito che il chimico mette il sale nella tisana per abitudine in modo bizzarro.",
+  "La contadina ha piantato orologi nel campo invece del grano in Francia.",
   "Quel violinista suona i Blues soltanto quando nevica in città.",
-  "Il geometra misura le emozioni con un righello telescopico.",
-  "Quella mucca filosofa rifiuta di dare latte prima delle dieci.",
-  "Ho capito che il pescatore vende pesci finti al mercato del martedì.",
-  "La pallavolista ha saltato così in alto da atterrare in Svizzera.",
-  "Quel topo di biblioteca legge enciclopedie invece di mangiare carta.",
-  "Il pasticcere aggiunge polvere di stelle ai cornetti della domenica.",
-  "Quella lucciola disoccupata fa da lampeggiante ai camion di notte.",
-  "Ho visto che il pianista accordava i gatti invece del pianoforte.",
-  "La poliziotta ha multato la luna per eccesso di luminosità.",
-  "Quel bambino ha scritto una lettera alla gravità per protestare.",
-  "Il geologo conserva campioni di silenzio in provette sigillate.",
-  "Quella galleria d'arte espone sbadigli famosi del Settecento.",
-  "Ho sentito che il sindacalista porta il grembiule anche alle assemblee.",
+  "Il geometra misura le emozioni con un compasso però senza scala di riferimento però.",
+  "Quella mucca filosofa non dà latte con il freddo però con un po' di musica si ammorbidisce.",
+  "Ho capito che il pescatore vende pesci finti al mercato del martedì con felicità.",
+  "La pallavolista ha saltato così in alto da atterrare in Svizzera in piazza.",
+  "Quel topo di biblioteca legge enciclopedie con un monocolo però poi le mangia con pietà.",
+  "Il pasticcere aggiunge polvere di stelle con un cucchiaino però non ne ha mai vista però.",
+  "Quella lucciola disoccupata fa da lampeggiante ai camion di notte con modestia.",
+  "Ho visto che il pianista accordava i gatti invece del pianoforte in modo preciso.",
+  "La poliziotta ha multato la luna per eccesso di luminosità in Perù.",
+  "Quel bambino ha scritto una lettera alla gravità per protestare con bravura.",
+  "Il geologo conserva campioni di silenzio in provette sigillate però non sa dove però.",
+  "Quella galleria d'arte espone sbadigli con un cartellino però nessuno capisce il prezzo.",
+  "Ho sentito che il sindacalista porta il grembiule anche alle assemblee con fierezza.",
   "La ricercatrice ha scoperto che le lumache sognano in bianco e nero.",
-  "Quel dottore prescrive passeggiate lunari ai pazienti insonni.",
-  "Il capostazione suona il fischietto anche quando non arriva nessun treno.",
-  "Quella pecora contabile tiene i conti della gregge in un taccuino.",
-  "Ho capito che il trapezista calcola le traiettorie con l'abaco.",
-  "La scrittrice di fantascienza alleva draghi nani in giardino.",
-  "Quel professore di latino traduce le istruzioni degli elettrodomestici.",
-  "Il pompiere ha innaffiato le petunie mentre spegneva l'incendio.",
-  "Quella stringa di scarpa si è rifiutata di annodarsi per tre settimane.",
-  "Ho visto il fornaio impastare il pane con le ascelle al ritmo di samba.",
-  "La geologa raccoglie fossili di silenzi imbarazzanti.",
-  "Quel semaforo ha litigato col vigile per questioni di principio.",
-  "Il cuoco ha aggiunto un'equazione di secondo grado alla minestra.",
-  "Quella tartaruga sprint allena giovani lepri alla velocità.",
-  "Ho sentito che il chirurgo prenota biglietti del circo durante le operazioni.",
-  "La meteorologa ha previsto pioggia di gomme da masticare per giovedì.",
-  "Quel campanile ha smesso di suonare per protesta contro il fuso orario.",
-  "Il filosofo ha ingaggiato una battaglia con la propria ombra e ha perso.",
-  "Quella rana soprano ha debuttato alla Scala con un'aria di Verdi.",
-  "Ho capito che il bibliotecario ordina i libri per odore.",
-  "La maestra di sci insegna a scendere le scale sulle pattine.",
-  "Quel vigile del fuoco ha spento l'incendio con acqua di rose.",
-  "Il botanico ha scoperto che alcune piante capiscono il sarcasmo.",
-  "Quella balena metropolitana prende la metro ogni mattina alle sette.",
-  "Ho visto il pizzaiolo lanciare la pizza fino al soffitto e dimenticarla.",
+  "Quel dottore prescrive passeggiate in Bolivia con un GPS però senza mappa però.",
+  "Un fischietto in bocca al capostazione però nessun treno capisce il segnale, mai.",
+  "Quella pecora contabile tiene i conti con un pallottoliere però fa sempre un errore però.",
+  "Ho capito che il trapezista calcola le traiettorie con l'abaco con parsimonia.",
+  "La scrittrice di fantascienza alleva draghi nani in giardino però nessuno sa come però bravissima.",
+  "Quel professore di latino traduce le istruzioni con un vocabolario però non finisce però.",
+  "Il pompiere ha innaffiato le petunie mentre spegneva l'incendio in punta di piedi.",
+  "Quella stringa di scarpa si è rifiutata di annodarsi per tre settimane in pantofole.",
+  "Ho visto il fornaio impastare il pane con le ascelle al ritmo di samba con baldanza.",
+  "La geologa raccoglie fossili con un pennello in piazza però poi li dimentica in borsa.",
+  "Quel semaforo ha litigato col vigile per questioni di principio con vigore.",
+  "Il cuoco ha aggiunto un'equazione di secondo grado alla minestra in Bolivia.",
+  "Quella tartaruga sprint allena giovani lepri alla velocità in modo buffo.",
+  "Ho sentito che il chirurgo prenota biglietti del circo durante le operazioni con puntualità.",
+  "La meteorologa ha previsto pioggia di gomme da masticare per giovedì con pazienza.",
+  "Quel campanile ha smesso di suonare per protesta contro il fuso orario con foga.",
+  "Il filosofo ha ingaggiato una battaglia con la propria ombra e ha perso con perizia.",
+  "Quella rana soprano ha debuttato alla Scala con un'aria di Verdi in modo molto particolare.",
+  "Ho capito che il bibliotecario ordina i libri per odore con precisione.",
+  "La maestra di sci insegna a scendere le scale sulle pattine in modo formidabile.",
+  "Quel vigile del fuoco ha spento l'incendio con acqua di rose con pietà.",
+  "Il botanico ha scoperto che alcune piante capiscono il sarcasmo con garbo.",
+  "Quella balena metropolitana prende la metro con un biglietto però in piedi però.",
+  "Ho visto il pizzaiolo lanciare la pizza fino al soffitto e dimenticarla in modo bizzarro.",
   "La calciatrice ha segnato un gol dalla luna con un tiro di destro.",
-  "Quel riccio matematico calcola il percorso minimo prima di ogni passeggiata.",
-  "Il violoncellista usa il suo strumento come canoa nei giorni di pioggia.",
+  "Quel riccio matematico calcola con un computer fatto di ghiande però poi se le mangia però.",
+  "Il violoncellista usa il suo strumento con un pagaiolo in Perù però affonda però.",
   "Quella nonna hacker entra nei sistemi informatici tra un maglia e l'altra.",
-  "Ho sentito che il pasticcere cifra i messaggi segreti nella glassa.",
-  "La speleologa colleziona buio in scatole di diverse dimensioni.",
-  "Quel gabbiano imprenditore ha aperto un servizio di consegna a domicilio.",
-  "Il pediatra ha diagnosticato al paziente un eccesso di fantasia cronica.",
-  "Quella stella alpina ha querellato il turista per uso improprio della sua immagine.",
-  "Ho capito che il fruttivendolo comunica con i cetrioli per telepatia.",
-  "La nuotatrice sincronizzata si allena nella vasca da bagno dei vicini.",
-  "Quel pappagallo avvocato difende cause in quattro lingue contemporaneamente.",
+  "Ho sentito che il pasticcere cifra i messaggi segreti nella glassa in Francia.",
+  "La speleologa colleziona buio con un barattolo in piazza però non riesce a chiuderlo.",
+  "Quel gabbiano imprenditore ha aperto un servizio di consegna a domicilio con felicità.",
+  "Il pediatra ha diagnosticato al paziente un eccesso di fantasia cronica in piazza.",
+  "Quella stella alpina ha querellato il turista per uso improprio della sua immagine con modestia.",
+  "Ho capito che il fruttivendolo comunica con i cetrioli per telepatia in modo preciso.",
+  "La nuotatrice sincronizzata si allena nella vasca da bagno dei vicini in Perù.",
+  "Quel pappagallo avvocato difende cause in quattro lingue però non sa fischiare però vince.",
   "Il sarto ha cucito un vestito che cambia colore a seconda dell'umore.",
   "Quella chiocciola urbanistica ha progettato un condominio di tre piani.",
-  "Ho visto che il cardinale alleva lucertole nel palazzo apostolico.",
+  "Ho visto che il cardinale alleva lucertole nel palazzo apostolico con bravura.",
   "La maratoneta si è fermata a fare un pisolino al quarantesimo chilometro.",
-  "Quel matematico risolve le equazioni camminando a zigzag.",
-  "Il tuffatore ha saltato dalla rupe e ha trovato il mare già occupato.",
-  "Quella scimmietta contabile ha trovato un errore nel bilancio dello stato.",
-  "Ho sentito che il mugnaio macina dubbi esistenziali invece del grano.",
+  "Quel matematico risolve le equazioni camminando a zigzag con fierezza.",
+  "Il tuffatore ha saltato dalla rupe e ha trovato il mare già occupato con parsimonia.",
+  "Quella scimmietta contabile ha trovato un errore nel bilancio dello stato in punta di piedi.",
+  "Ho sentito che il mugnaio macina dubbi esistenziali invece del grano in pantofole.",
   "La campionessa di nuoto ha vinto la gara senza bagnarsi, con grande calma.",
-  "Quel sindaco ha firmato un decreto contro i sogni troppo rumorosi.",
-  "Il liutaio costruisce violini che piangono suonate di Bartók.",
+  "Quel sindaco ha firmato un decreto contro i sogni troppo rumorosi con baldanza.",
+  "Il liutaio costruisce violini che piangono suonate di Bartók con vigore.",
   "Quella lumaca triatleta ha completato l'Ironman in quarantasette anni.",
-  "Ho capito che l'allenatore di calcio alleva pulci ammaestrate nel tempo libero.",
+  "Ho capito che l'allenatore di calcio alleva pulci ammaestrate nel tempo libero in Bolivia.",
   "La casalinga quantistica è in più posti contemporaneamente durante le pulizie.",
-  "Quel piccione diplomatico porta messaggi segreti tra le capitali europee.",
+  "Quel piccione porta messaggi con un cappello però non sa come tenerlo in testa però.",
   "Il gelataio ha inventato un gusto che sa del primo giorno di scuola.",
-  "Quella signora anziana ha scalato il Monte Bianco con le pantofole.",
-  "Ho visto il semiologo cercare significati nascosti nelle previsioni del tempo.",
+  "Quella signora anziana ha scalato il Monte Bianco con le pantofole in modo buffo.",
+  "Ho visto il semiologo cercare significati nascosti nelle previsioni del tempo con puntualità.",
   "La scultrice ha scolpito un cubo di ghiaccio che non si scioglie mai.",
   "Quel tassello mancante del puzzle ha aperto uno sportello in banca.",
-  "Il ginnasta ha eseguito una capriola dentro il frigorifero per scommessa.",
-  "Quella formica sindacalista ha organizzato uno sciopero delle formiche operaie.",
-  "Ho sentito che l'ornitologa insegna ai merli a cantare jazz.",
-  "La professoressa di matematica disegna frattali sulle torte di compleanno.",
-  "Quel cane filosofo abbaia solo in risposta a domande esistenziali.",
-  "Il falegname ha costruito una porta che conduce solo ai ricordi belli.",
-  "Quella stella cadente ha chiesto il rimborso per un desiderio non esaudito.",
-  "Ho capito che il meccanico ripara automobili fischiettando equazioni.",
-  "La scrittrice ha ambientato il suo ultimo romanzo dentro una scarpa.",
-  "Quel bambino ha convinto la nonna che i biscotti curano il mal di testa.",
-  "Il guardiano del faro legge riviste di moda alle onde del mare.",
-  "Quella rana cronista ha intervistato il sole sul calo delle temperature.",
-  "Ho visto che il primario indossa calze a righe sotto il camice bianco.",
-  "La pasticcera ha preparato un dolce che sa di martedì pomeriggio.",
-  "Quel topo di fogna ha scritto una guida gastronomica sotterranea.",
+  "Il ginnasta ha eseguito una capriola dentro il frigorifero per scommessa con pazienza.",
+  "Quella formica sindacalista ha organizzato uno sciopero delle formiche operaie con foga.",
+  "Ho sentito che l'ornitologa insegna ai merli a cantare jazz con perizia.",
+  "La professoressa di matematica disegna frattali con un pennarello però poi mangia la torta.",
+  "Quel cane filosofo abbaia solo in risposta a domande esistenziali in modo molto particolare.",
+  "Il falegname ha costruito una porta che conduce solo ai ricordi belli con precisione.",
+  "Quella stella cadente ha chiesto il rimborso per un desiderio non esaudito in modo formidabile.",
+  "Ho capito che il meccanico ripara automobili fischiettando equazioni con pietà.",
+  "La scrittrice ha ambientato il suo ultimo romanzo dentro una scarpa con garbo.",
+  "Quel bambino ha convinto la nonna che i biscotti curano il mal di testa in modo bizzarro.",
+  "Un guardiano del faro legge moda con un faro puntato però le onde non guardano mai però.",
+  "Quella rana cronista ha intervistato il sole sul calo delle temperature in Francia.",
+  "Ho visto che il primario indossa calze a righe sotto il camice bianco con felicità.",
+  "La pasticcera ha preparato un dolce che sa di martedì pomeriggio in piazza.",
+  "Quel topo di fogna ha scritto una guida gastronomica sotterranea con modestia.",
   "Il funambolo fa la spesa camminando su un filo tra due supermercati.",
-  "Quella nuvola permalosa non piove sulle case di chi la ignora.",
-  "Ho sentito che il generale ha combattuto la sua ultima battaglia a scacchi.",
-  "La studentessa di veterinaria ha vaccinato i pesci contro il mal di mare.",
-  "Quel professore di ginnastica insegna a cadere con stile e grazia.",
-  "Il cuoco tibetano aggiunge meditazione trascendentale al brodo di pollo.",
-  "Quella gallina con la laurea ha trovato lavoro come consulente finanziaria.",
-  "Ho capito che il pittore usa come pennello la coda del gatto.",
-  "La ricercatrice ha dimostrato che i ponti sognano quando non ci passa nessuno.",
-  "Quel postino consegna lettere del futuro con tre settimane di anticipo.",
-  "Il vigile urbano ha multato un albero per ombra abusiva sul marciapiede.",
-  "Quella pecora contorsionista si piega in quattro per accontentare tutti.",
-  "Ho visto il ciclista pedalare all'indietro cantando arie liriche.",
-  "La biologa ha scoperto che gli alberi fanno il tifo per la squadra locale.",
-  "Quel pasticcere nevrotico mette le brioches in fila per altezza.",
-  "Il detective ha risolto il caso annusando le impronte digitali.",
+  "Quella nuvola permalosa non piove su chi porta con sé un parapioggia, per dispetto però.",
+  "Ho sentito che il generale ha combattuto la sua ultima battaglia a scacchi in modo preciso.",
+  "La studentessa di veterinaria ha vaccinato i pesci contro il mal di mare in Perù.",
+  "Quel professore di ginnastica insegna a cadere con stile e grazia con bravura.",
+  "Il cuoco tibetano aggiunge meditazione con un mestolo però il brodo non capisce però.",
+  "Quella gallina con la laurea ha trovato lavoro come consulente finanziaria con fierezza.",
+  "Ho capito che il pittore usa come pennello la coda del gatto con parsimonia.",
+  "La ricercatrice ha dimostrato che i ponti sognano quando non ci passa nessuno in punta di piedi.",
+  "Quel postino consegna lettere del futuro con tre settimane di anticipo in pantofole.",
+  "Il vigile urbano ha multato un albero per ombra abusiva sul marciapiede con baldanza.",
+  "Quella pecora contorsionista si piega in quattro con facilità però nessuno capisce perché.",
+  "Ho visto il ciclista pedalare all'indietro cantando arie liriche con vigore.",
+  "La biologa ha scoperto che gli alberi fanno il tifo per la squadra locale in Bolivia.",
+  "Quel pasticcere nevrotico mette le brioches in fila per altezza però con un righello però.",
+  "Il detective ha risolto il caso annusando le impronte digitali in modo buffo.",
   "Quella lumaca emigrata ha attraversato l'oceano in quarant'anni.",
-  "Ho sentito che il rabbino colleziona chiodi arrugginiti per superstizione.",
+  "Ho sentito che il rabbino colleziona chiodi arrugginiti per superstizione con puntualità.",
   "La paleontologa ha trovato un fossile di risata risalente al Giurassico.",
-  "Quel cavallo da corsa legge il giornale prima di ogni gara.",
-  "Il pizzaiolo ha lanciato la pizza così in alto che è diventata un satellite.",
-  "Quella chiave inglese si è laureata in ingegneria strutturale.",
-  "Ho capito che la cameriera serve le emozioni invece del caffè.",
-  "Il geometra ha misurato la distanza tra due pensieri con il teodolite.",
+  "Quel cavallo da corsa legge il giornale prima di ogni gara con pazienza.",
+  "Il pizzaiolo ha lanciato la pizza così in alto che è diventata un satellite con foga.",
+  "Quella chiave inglese si è laureata in ingegneria strutturale con perizia.",
+  "Ho capito che la cameriera serve le emozioni invece del caffè in modo molto particolare.",
+  "Il geometra ha misurato la distanza tra due pensieri con il teodolite con precisione.",
   "Quella civetta nottambula ha aperto un bar solo per gufi insonni.",
-  "Lo speleologo ha trovato una grotta piena di sospiri perduti.",
+  "Lo speleologo ha trovato una grotta piena di sospiri perduti in modo formidabile.",
   "Il bambino ha insegnato alla nonna a fare il breakdance in cucina.",
-  "Quella mucca artista dipinge capolavori con la coda intinta nel latte.",
-  "Ho visto che il farmacista prepara pozioni contro la malinconia del lunedì.",
+  "Quella mucca artista dipinge con un pennello fatto con la propria coda però capolavori però.",
+  "Ho visto che il farmacista prepara pozioni contro la malinconia del lunedì con pietà.",
   "La violinista suona Vivaldi ai pomodori per farli crescere più in fretta.",
-  "Quel trampoliere fa la spesa allungando le mani dai palchi del supermercato.",
-  "Il professore di storia insegna il futuro e prevede il passato.",
-  "Quella volpe urbana ha conseguito la patente di guida al primo tentativo.",
-  "Ho sentito che il monaco ha trovato l'illuminazione dentro una lavatrice.",
-  "La campionessa di scacchi risolve le partite in sogno e poi le trasferisce.",
-  "Quel bambino prodigio ha inventato un linguaggio per parlare con le piante.",
-  "Il maestro elementare insegna i numeri primi usando le dita dei piedi.",
-  "Quella tartaruga record ha battuto il primato mondiale di immobilità.",
-  "Ho capito che la nuotatrice si allena nella fontana di Trevi di notte.",
-  "Il boscaiolo abbatte alberi con la forza del pensiero ogni venerdì.",
-  "Quella soubrette ha convinto il pubblico che volare è una questione di volontà.",
-  "Lo studente di filosofia ha smesso di camminare perché il moto è un'illusione.",
-  "Il gatto bibliotecario restituisce i libri sempre con il segnalibro al posto giusto.",
-  "Quella nonna skateboarder ha vinto il campionato under novanta.",
-  "Ho visto il dottore prescrivere tre risate al giorno prima dei pasti.",
-  "La ricercatrice studia le lacrime degli ombrelli nelle giornate di sole.",
-  "Quel mago da quattro soldi ha fatto sparire il suo pubblico per sbaglio.",
-  "Il geometra ha scoperto che la sua casa si trova leggermente fuori scala.",
-  "Quella ranocchia deputata ha proposto una legge contro la siccità.",
-  "Ho sentito che la poliziotta colleziona fermi di persona a scopo artistico.",
-  "Il fabbro ha forgiato un'ancora per tenere fermi i sogni durante la notte.",
-  "Quella coccinella meteorologa prevede il tempo con le macchie sulle ali.",
-  "Lo scrittore ha ambientato il suo romanzo dentro la propria testa.",
-  "Il professore di musica ha insegnato al silenzio a fare le ottave.",
-  "Quella nuvola stonata accompagna con le sue piogge le canzoni sbagliate.",
-  "Ho capito che il botanico canta serenate alle felci ogni giovedì sera.",
-  "La trapezista esegue acrobazie fiscali per il suo commercialista.",
-  "Quel gatto contabile trova sempre il pelo nell'uovo nei bilanci aziendali.",
+  "Quel trampoliere fa la spesa allungando le mani dai palchi del supermercato con garbo.",
+  "Il professore di storia insegna il futuro e prevede il passato in modo bizzarro.",
+  "Quella volpe urbana ha conseguito la patente di guida al primo tentativo in Francia.",
+  "Ho sentito che il monaco ha trovato l'illuminazione dentro una lavatrice con felicità.",
+  "La campionessa di scacchi risolve le partite in sogno e poi le trasferisce in piazza.",
+  "Quel bambino prodigio ha inventato un linguaggio per parlare con le piante con modestia.",
+  "Il maestro elementare insegna con un mazzo di fiori però i bambini preferiscono i biscotti.",
+  "Quella tartaruga record ha battuto il primato mondiale di immobilità in modo preciso.",
+  "Ho capito che la nuotatrice si allena nella fontana di Trevi di notte in Perù.",
+  "Il boscaiolo abbatte alberi con la forza del pensiero ogni venerdì con bravura.",
+  "Quella soubrette ha convinto il pubblico che volare è una questione di volontà con fierezza.",
+  "Lo studente di filosofia ha smesso di camminare perché il moto è un'illusione con parsimonia.",
+  "Il gatto bibliotecario restituisce libri con un bigliettino però ci lascia sempre pelo.",
+  "Quella nonna skateboarder ha vinto il campionato under novanta in punta di piedi.",
+  "Ho visto il dottore prescrivere tre risate al giorno prima dei pasti in pantofole.",
+  "La ricercatrice studia le lacrime degli ombrelli con un microscopio però piange anche lei.",
+  "Quel mago da quattro soldi ha fatto sparire il suo pubblico per sbaglio con baldanza.",
+  "Il geometra ha scoperto che la sua casa si trova leggermente fuori scala con vigore.",
+  "Quella ranocchia deputata ha proposto una legge contro la siccità in Bolivia.",
+  "Ho sentito che la poliziotta colleziona fermi di persona a scopo artistico in modo buffo.",
+  "Il fabbro ha forgiato un'ancora per tenere fermi i sogni durante la notte con puntualità.",
+  "Quella coccinella meteorologa prevede con un barometro minuscolo però sbaglia di un giorno.",
+  "Lo scrittore ha ambientato il suo romanzo dentro la propria testa con pazienza.",
+  "Il professore di musica ha insegnato al silenzio a fare le ottave con foga.",
+  "Quella nuvola stonata piove con un ritmo fuori tempo però con grande impegno però.",
+  "Ho capito che il botanico canta serenate alle felci ogni giovedì sera con perizia.",
+  "La trapezista fa acrobazie fiscali con un filo però il commercialista guarda con pietà.",
+  "Quel gatto contabile trova il pelo con un computer però i graffi sul mouse son suoi però.",
   "Il costruttore ha edificato un palazzo con fondamenta di buona volontà.",
-  "Quella pianista ha composto una sonata per accordatore di pianoforti sordo.",
-  "Ho visto il panettiere lievitare insieme al suo pane ogni mattina.",
-  "La speleologa studia il buio di giorno e la luce di notte.",
-  "Quel tacchino esistenzialista si chiede ogni mattina perché alzarsi.",
-  "Il chimico ha sintetizzato la nostalgia in laboratorio e l'ha brevettata.",
+  "Quella pianista ha composto una sonata per accordatore di pianoforti sordo in modo molto particolare.",
+  "Ho visto il panettiere lievitare insieme al suo pane ogni mattina con precisione.",
+  "La speleologa studia il buio di giorno e la luce di notte in modo formidabile.",
+  "Quel tacchino esistenzialista si chiede ogni mattina perché alzarsi con pietà.",
+  "Il chimico ha sintetizzato la nostalgia in laboratorio e l'ha brevettata con garbo.",
   "Quella zebratura non era una zebratura ma un codice Morse sull'asfalto.",
-  "Ho sentito che il guardaparco alleva farfalle acrobatiche per spettacoli.",
-  "La ballerina di tango ha fatto inciampare il suo partner in tre continenti.",
-  "Quel pasticcere ha cucinato una torta che sa esattamente di ieri.",
-  "Il pittore usa i tuoni come pennellate sui cieli delle sue tele.",
+  "Ho sentito che il guardaparco alleva farfalle acrobatiche per spettacoli in modo bizzarro.",
+  "La ballerina di tango ha fatto inciampare il suo partner in tre continenti in Francia.",
+  "Quel pasticcere ha cucinato una torta che sa esattamente di ieri con felicità.",
+  "Il pittore usa i tuoni con un pennello gigante però poi deve aspettare con pazienza.",
   "Quella mucca musicista ha suonato il basso in un gruppo jazz.",
-  "Ho capito che il geologo misura il tempo con la velocità delle stalattiti.",
-  "La cuoca ha inventato una ricetta che guarisce la sindrome del lunedì mattina.",
-  "Quel gufo intellettuale tiene conferenze sui buchi neri ai topi di campagna.",
-  "Il meccanico ha riparato il tempo che si era fermato la settimana scorsa.",
-  "Quella pecora avanguardista ha progettato un labirinto moderno per il gregge.",
-  "Ho visto il sommelier annusare i vini del futuro per ordinare al presente.",
-  "La matematica ha trovato un numero che non vuole essere calcolato.",
-  "Quel fungo radioattivo fa luce sufficiente per leggere di notte.",
+  "Ho capito che il geologo misura il tempo con la velocità delle stalattiti in piazza.",
+  "La cuoca ha inventato una ricetta che guarisce la sindrome del lunedì mattina con modestia.",
+  "Quel gufo intellettuale parla con un microfono però i topi di campagna non capiscono però.",
+  "Il meccanico ha riparato il tempo che si era fermato la settimana scorsa in modo preciso.",
+  "Quella pecora avanguardista ha progettato un labirinto moderno per il gregge in Perù.",
+  "Ho visto il sommelier annusare i vini del futuro per ordinare al presente con bravura.",
+  "La matematica ha trovato un numero che non vuole essere calcolato con fierezza.",
+  "Quel fungo radioattivo fa luce sufficiente per leggere di notte con parsimonia.",
   "Il geometra ha diviso il cielo in particelle catastali regolari.",
   "Quella lumaca ha citato in giudizio la lepre per diffamazione.",
-  "Ho sentito che il parrucchiere taglia i capelli ai pensieri degli insonni.",
-  "La professoressa di letteratura ha trovato una metafora rimasta nascosta per secoli.",
-  "Quel delfino laureato in economia insegna microfinanza ai pesci pilota.",
-  "Il sarto ha misurato l'infinito e ha concluso che non calza bene a nessuno.",
-  "Quella stella polare ha cambiato lavoro e ora fa il semaforo all'incrocio.",
+  "Ho sentito che il parrucchiere taglia i capelli ai pensieri degli insonni in punta di piedi.",
+  "La professoressa di letteratura ha trovato una metafora rimasta nascosta per secoli in pantofole.",
+  "Quel delfino insegna microfinanza con un gessetto però i pesci pilota preferiscono però.",
+  "Il sarto ha misurato l'infinito e ha concluso che non calza bene a nessuno con baldanza.",
+  "Quella stella polare ha cambiato lavoro e ora fa il semaforo all'incrocio con vigore.",
   "Ho capito che il fioraio coltiva fiori in pentola e pasta nei vasi.",
   "La vigile ha multato il vento per eccesso di velocità in centro.",
-  "Quel corvo filosofo raccoglie oggetti lucidi e argomenti solidi.",
+  "Quel corvo filosofo raccoglie oggetti lucidi e argomenti solidi in Bolivia.",
   "Il ginnasta ha eseguito un salto mortale per evitare un buchetto sul marciapiede.",
-  "Quella giraffa archivista conserva documenti riservati nei cassetti più alti.",
+  "Quella giraffa archivista conserva documenti riservati nei cassetti più alti in modo buffo.",
   "Ho visto il calciatore segnare un gol su punizione con gli occhi chiusi.",
   "La fisioterapista ha curato il mal di schiena di un campanile storto.",
-  "Quel rospo imprenditore ha lanciato una startup per la raccolta di mosche.",
-  "Il direttore d'orchestra ha diretto un temporale in do minore.",
-  "Quella mantide religiosa ha fondato un ordine monastico per insetti.",
-  "Ho sentito che la cosmonave faceva il footing intorno alla luna ogni sera.",
+  "Quel rospo imprenditore ha lanciato una startup per la raccolta di mosche con puntualità.",
+  "Il direttore d'orchestra ha diretto un temporale in do minore con pazienza.",
+  "Quella mantide religiosa ha fondato un ordine monastico per insetti con foga.",
+  "Ho sentito che la cosmonave faceva il footing intorno alla luna ogni sera con perizia.",
   "Il vigile del fuoco ha salvato un gatto che non voleva essere salvato.",
-  "Quella professoressa di yoga insegna l'equilibrio al pendolo di Foucault.",
+  "Quella professoressa di yoga insegna con un pendolo però gli studenti cadono però ridono.",
   "Lo spettacolo di burattini era diretto da un burattinaio burattino.",
-  "Il carpentiere costruisce scale per persone che vogliono scendere.",
-  "Quella leonessa avvocato difende i diritti delle zebre in tribunale.",
-  "Ho capito che il mago ha perso le istruzioni e ora fa sparire cose utili.",
-  "La studentessa di astronomia ha trovato una stella che suona il sassofono.",
-  "Quel criceto stacanovista gira la ruota anche nei giorni festivi.",
-  "Il sindaco ha emanato un'ordinanza contro il silenzio nelle ore di punta.",
-  "Quella pecora urbana prende l'autobus ogni mattina con l'abbonamento mensile.",
-  "Ho visto il pastore spostare le pecore con un joystick dal divano.",
-  "La ceramista plasma argilla con i piedi e pensa con le mani.",
-  "Quel coniglio contabile ha trovato gli errori nel bilancio dell'ecosistema.",
+  "Il carpentiere costruisce scale per persone che vogliono scendere in modo molto particolare.",
+  "Quella leonessa avvocato difende i diritti delle zebre in tribunale con precisione.",
+  "Ho capito che il mago ha perso le istruzioni e ora fa sparire cose utili in modo formidabile.",
+  "La studentessa di astronomia ha trovato una stella che suona il sassofono con pietà.",
+  "Quel criceto gira con un cronometro in bocca però nei giorni festivi accelera però.",
+  "Il sindaco ha emanato un'ordinanza contro il silenzio nelle ore di punta con garbo.",
+  "Quella pecora prende l'autobus con un biglietto però lascia lana sul sedile però.",
+  "Ho visto il pastore spostare le pecore con un joystick dal divano in modo bizzarro.",
+  "La ceramista plasma argilla con i piedi e pensa con le mani in Francia.",
+  "Quel coniglio contabile ha trovato gli errori nel bilancio dell'ecosistema con felicità.",
   "Il fonditore ha fuso un pensiero inutile in un oggetto decorativo.",
   "Quella rondine architetta ha progettato un nido antisismico in classe A.",
-  "Ho sentito che il postino consegna le mail stampate a chi non ha internet.",
-  "La comica involontaria fa ridere il pubblico parlando di cose serissime.",
-  "Quel cormorano fotografo ritrae le nuvole per riviste subacquee.",
-  "Il domatore di pulci ha perso il lavoro quando le pulci si sono organizzate.",
-  "Quella gallina sperimentale ha covato un uovo di marmo per tre settimane.",
-  "Ho capito che il medico di base misura la febbre con il termometro sbagliato.",
-  "La nuotatrice ha attraversato il lago a farfalla cantando Rigoletto.",
-  "Quel funzionario comunale ha archiviato una nuvola senza numero di protocollo.",
-  "Il compositore scrive musica che suona anche quando non viene eseguita.",
-  "Quella tigre in pensione alleva cuccioli di vegetariani convinti.",
+  "Ho sentito che il postino consegna le mail stampate a chi non ha internet in piazza.",
+  "La comica involontaria fa ridere il pubblico parlando di cose serissime con modestia.",
+  "Quel cormorano fotografa in piazza con un obiettivo impermeabile però le nuvole non posano.",
+  "Il domatore di pulci ha perso il lavoro quando le pulci si sono organizzate in modo preciso.",
+  "Quella gallina sperimentale ha covato un uovo di marmo per tre settimane in Perù.",
+  "Ho capito che il medico di base misura la febbre con il termometro sbagliato con bravura.",
+  "La nuotatrice ha attraversato il lago a farfalla cantando Rigoletto con fierezza.",
+  "Quel funzionario comunale ha archiviato una nuvola senza numero di protocollo con parsimonia.",
+  "Il compositore scrive musica che suona anche quando non viene eseguita in punta di piedi.",
+  "Quella tigre in pensione alleva cuccioli di vegetariani convinti però li porta al pascolo però.",
   "Ho visto il tecnico riparare il buon umore con un cacciavite a stella.",
-  "La pensionata pilota accumulava miglia aeree per fare la spesa.",
-  "Quel filosofo ha perso un argomento mentre cambiava autobus.",
-  "Il pasticcere ha creato una tarte tatin che piange quando viene tagliata.",
-  "Quella scimmia contorsionista si è infilata dentro la sua stessa tasca.",
-  "Ho sentito che il carpentiere pianta chiodi nei pensieri sbagliati.",
-  "La palomba pacifista porta ulivi invece di messaggi.",
-  "Quel marmocchio testardo ha tenuto il fiato per tre anni di fila.",
-  "Il trombonista suona durante i terremoti per coprire il rumore.",
-  "Quella stella marina ha vinto una causa per danni morali contro la marea.",
-  "Ho capito che il geologo sente le crepe nel terreno come note musicali.",
-  "La presentatrice ha intervistato il vento sulla stagione autunnale.",
-  "Quel bradipo ultramaratoneta arriva sempre al traguardo ma mai a orario.",
+  "La pensionata pilota accumulava miglia con un bagaglio pieno però non atterrava volentieri.",
+  "Quel filosofo ha perso un argomento mentre cambiava autobus in pantofole.",
+  "Il pasticcere ha creato una tarte tatin che piange quando viene tagliata con baldanza.",
+  "Quella scimmia contorsionista si è infilata dentro la sua stessa tasca con vigore.",
+  "Ho sentito che il carpentiere pianta chiodi nei pensieri sbagliati in Bolivia.",
+  "La palomba pacifista porta con sé un fiocco però i messaggi li dimentica però.",
+  "Quel marmocchio testardo ha tenuto il fiato per tre anni di fila in modo buffo.",
+  "Il trombonista suona con un volume mostruoso però durante i terremoti passa inosservato.",
+  "Quella stella marina ha vinto una causa per danni morali contro la marea con puntualità.",
+  "Ho capito che il geologo sente le crepe nel terreno come note musicali con pazienza.",
+  "La presentatrice ha intervistato il vento sulla stagione autunnale con foga.",
+  "Quel bradipo ultramaratoneta arriva sempre al traguardo ma mai a orario con perizia.",
   "Il semaforo ha chiesto ferie e ha sostituito un vigile per tre giorni.",
-  "Quella professoressa di fisica quantistica non è mai dove sembra essere.",
-  "Ho visto il fornaio fare il pane a occhi chiusi fischiettando Bach.",
-  "La tuffatrice ha eseguito un triplo salto dentro una pozzanghera.",
-  "Quel lombrico architetto ha costruito cunicoli seguendo il Codice di Hammurabi.",
+  "Quella professoressa di fisica quantistica non è mai dove sembra essere in modo molto particolare.",
+  "Ho visto il fornaio fare il pane a occhi chiusi fischiettando Bach con precisione.",
+  "La tuffatrice ha eseguito un triplo salto dentro una pozzanghera in modo formidabile.",
+  "Quel lombrico architetto ha costruito cunicoli seguendo il Codice di Hammurabi con pietà.",
   "Il regista ha girato un film con attori che dormivano durante le riprese.",
-  "Quella nonna hooligan urla ai calciatori suggerimenti in latino.",
-  "Ho sentito che il barista prepara il caffè seguendo i principi dell'alchimia.",
-  "La geologa ha trovato uno strato sedimentario pieno di ricevute fiscali.",
-  "Quel gatto musicologo analizza le proprie fusa come forme di sonata.",
-  "Il maestro di scherma insegna a duellare con le cravatte.",
-  "Quella giornalista ha scritto un articolo sulla notizia di non aver notizie.",
-  "Ho capito che il pizzaiolo lancia l'impasto in orbita e lo riprende al volo.",
-  "La terapeuta ha curato una crisi esistenziale usando solo origami.",
-  "Quel toro da rodeo frequenta corsi serali di danza classica.",
-  "Il pasticcere ha sfornato bignè che contengono ricordi d'infanzia.",
-  "Quella rondine pendolare percorre ogni giorno mille chilometri per abitudine.",
-  "Ho visto il pompiere costruire una fontana con i tubi dell'incendio.",
-  "La studentessa di medicina ha diagnosticato il temporale con lo stetoscopio.",
-  "Quel ragno ingegnere ha costruito una rete con accesso WiFi incluso.",
-  "Il paleontologo ha trovato le impronte di un dinosauro che andava a fare jogging.",
-  "Quella colibrì imprenditrice ha brevettato un sistema di consegna in un secondo.",
-  "Ho sentito che la bibliotecaria classifica i silenzi per intensità e durata.",
-  "Il calzolaio ripara le scarpe raccontando fiabe ai chiodi, con grande cura.",
+  "Quella nonna urla con un megafono però i calciatori fanno finta di non capire però.",
+  "Ho sentito che il barista prepara il caffè seguendo i principi dell'alchimia con garbo.",
+  "La geologa ha trovato uno strato sedimentario pieno di ricevute fiscali in modo bizzarro.",
+  "Quel gatto musicologo analizza con un metronomo però le fusa non vanno a tempo però.",
+  "Il maestro di scherma insegna a duellare con le cravatte in Francia.",
+  "Quella giornalista ha scritto un articolo sulla notizia di non aver notizie con felicità.",
+  "Ho capito che il pizzaiolo lancia l'impasto in orbita e lo riprende al volo in piazza.",
+  "La terapeuta ha curato una crisi esistenziale usando solo origami con modestia.",
+  "Quel toro da rodeo frequenta corsi serali di danza classica in modo preciso.",
+  "Il pasticcere ha sfornato bignè che contengono ricordi d'infanzia in Perù.",
+  "Quella rondine pendolare vola con un bagaglio minimo però mille chilometri però puntuale.",
+  "Ho visto il pompiere costruire una fontana con i tubi dell'incendio con bravura.",
+  "La studentessa di medicina ha diagnosticato il temporale con lo stetoscopio con fierezza.",
+  "Quel ragno ingegnere ha costruito una rete con accesso WiFi incluso con parsimonia.",
+  "Il paleontologo ha trovato le impronte di un dinosauro che andava a fare jogging in punta di piedi.",
+  "Quella colibrì imprenditrice ha brevettato un sistema di consegna in un secondo in pantofole.",
+  "Ho sentito che la bibliotecaria classifica i silenzi per intensità e durata con baldanza.",
+  "Il calzolaio ripara scarpe in Bolivia raccontando fiabe ai chiodi con una voce pacata però.",
   "Quella quercia centenaria ha vinto un concorso di bellezza contro le palme.",
-  "Lo speleologo ha trovato una grotta attrezzata con cucina e bagno."
+  "Lo speleologo ha trovato una grotta attrezzata con cucina e bagno.",
 ];
+
+// ─── DIZIONARIO IATI ─────────────────────────────────────────────
+// Protezioni: ü=u atona, ï=i atona, ù/ì=vocale tonica
+// Dopo individuaJW: ü→u, ï→i
+const IATI_IU = {
+  "abbuiare": "abbüjàre",
+  "acuire": "acüìre",
+  "altrui": "altrùi",
+  "arguire": "argüìre",
+  "attribuibile": "attribüìbile",
+  "attribuire": "attribüìre",
+  "autoattribuito": "autoattribüìto",
+  "autocostituire": "autocostitüìre",
+  "autocostruire": "autocostrüìre",
+  "autodestituire": "autodestitüìre",
+  "babbuino": "babbüìno",
+  "beduino": "bedüìno",
+  "belluino": "bellüìno",
+  "buia": "bùja",
+  "buio": "bùjo",
+  "circuire": "circüìre",
+  "circuitale": "circüìtàle",
+  "colui": "colùi",
+  "confluire": "conflüìre",
+  "contribuire": "contribüìre",
+  "contribuito": "contribüìto",
+  "cortocircuito": "cortocircùito",
+  "costituito": "costüìto",
+  "costruibile": "costrüìbile",
+  "costui": "costùi",
+  "decostruire": "decostrüìre",
+  "defluire": "deflüìre",
+  "destituire": "destitüìre",
+  "destituito": "destüìto",
+  "diluibile": "dilüìbile",
+  "diluire": "dilüìre",
+  "diluizione": "dilüizióne",
+  "diminuire": "diminüìre",
+  "druido": "drüìdo",
+  "evoluire": "evolüìre",
+  "fluidificare": "flüidificàre",
+  "fluidità": "flüidità",
+  "fluido": "flùido",
+  "fluire": "flüìre",
+  "fruibile": "früìbile",
+  "fruibilità": "früibilità",
+  "fruire": "früìre",
+  "fruitore": "früitóre",
+  "fruizione": "früizióne",
+  "genuinamente": "genüinamènte",
+  "genuinità": "genüinità",
+  "genuino": "genüìno",
+  "gesuita": "gesüìta",
+  "gesuitico": "gesüìtico",
+  "gianduiotto": "giandüiòtto",
+  "gratuitamente": "gratüitamente",
+  "gratuità": "gratüità",
+  "incongruità": "incongrüità",
+  "influire": "inflüìre",
+  "insostituibile": "insostüìbile",
+  "intuibile": "intüìbile",
+  "intuire": "intüìre",
+  "intuitivo": "intüìtivo",
+  "istituire": "istitüìre",
+  "istruire": "istrüìre",
+  "lui": "lùi",
+  "microcircuito": "microcircùito",
+  "ostruire": "ostrüìre",
+  "pattuire": "pattüìre",
+  "pattuito": "pattüìto",
+  "pattuizione": "pattüìzione",
+  "piduista": "pidüìsta",
+  "precostituire": "precostitüìre",
+  "prostituire": "prostitüìre",
+  "rabbuiare": "rabbüiare",
+  "redistribuire": "redistribüìre",
+  "restituibile": "restitüìbile",
+  "restituire": "restitüìre",
+  "retribuire": "retribüìre",
+  "riacuire": "rïacüìre",
+  "ricostituire": "ricostitüìre",
+  "ricostruire": "ricostrüìre",
+  "ridistribuire": "ridistribüìre",
+  "rifluire": "riflüìre",
+  "scombuiare": "scombüiàre",
+  "sminuire": "sminüìre",
+  "sostituibile": "sostitüìbile",
+  "sostituire": "sostitüìre",
+  "statuina": "statüìna",
+  "statuire": "statüìre",
+  "suino": "süìno",
+  "superfluità": "superflüìtà",
+  "taccuino": "taccüìno",
+  "usufruire": "usufrüìre",
+};
+
+const IATI_AMBIGUI = {
+  "circuito": { opzioni: ["circùito (nome)", "circüìto (verbo)"], forme: ["circùito", "circüìto"] },
+  "intuito": { opzioni: ["intùito (nome/agg)", "intüìto (verbo)"], forme: ["intùito", "intüìto"] },
+};
 
 // ═══════════════════════════════════════════════════════
 // IPA KEYBOARD SYMBOLS
@@ -733,38 +833,34 @@ function render() {
 // ─── HOME ───────────────────────────────────────────
 function renderHome() {
   const div = el('div');
-
   const card = el('div','card');
-  card.appendChild(lbl('Scegli la frase'));
 
-  const row = el('div','btn-row');
-  const btnRand = btn('Frase casuale', true);
+  card.appendChild(lbl('Inserisci la frase da trascrivere'));
+
+  const inputRow = el('div');
+  inputRow.style.cssText = 'display:flex;gap:0.5rem;align-items:flex-start;flex-wrap:wrap;';
+
+  const inp = el('input','text-input');
+  inp.type = 'text';
+  inp.id = 'frase-input';
+  inp.placeholder = 'Scrivi qui la frase, oppure usa una frase casuale →';
+  inp.value = state.customFrase;
+  inp.style.cssText = 'flex:1;min-width:0;margin-bottom:0;';
+  inp.oninput = e => { state.customFrase = e.target.value; };
+  inp.onkeydown = e => {
+    if (e.key === 'Enter' && state.customFrase.trim())
+      startLookup(state.customFrase.trim());
+  };
+
+  const btnRand = btn('↺ Frase casuale');
   btnRand.onclick = () => {
     const f = FRASI[Math.floor(Math.random() * FRASI.length)];
     startLookup(f);
   };
-  const btnCustom = btn('Inserisco io una mia frase');
-  btnCustom.onclick = () => setState({ showCustom: !state.showCustom });
-  row.appendChild(btnRand);
-  row.appendChild(btnCustom);
-  card.appendChild(row);
 
-  if (state.showCustom) {
-    const inp = el('input','text-input');
-    inp.type = 'text';
-    inp.placeholder = 'Scrivi qui la tua frase…';
-    inp.value = state.customFrase;
-    inp.style.marginTop = '0.75rem';
-    inp.oninput = e => { state.customFrase = e.target.value; };
-    inp.onkeydown = e => { if (e.key === 'Enter' && state.customFrase.trim()) startLookup(state.customFrase.trim()); };
-    const btnUsa = btn('Usa questa frase →', true);
-    btnUsa.style.marginTop = '0.4rem';
-    btnUsa.onclick = () => {
-      if (state.customFrase.trim()) startLookup(state.customFrase.trim());
-    };
-    card.appendChild(inp);
-    card.appendChild(btnUsa);
-  }
+  inputRow.appendChild(inp);
+  inputRow.appendChild(btnRand);
+  card.appendChild(inputRow);
 
   if (state.error) {
     const errDiv = el('div');
@@ -774,6 +870,12 @@ function renderHome() {
   }
 
   div.appendChild(card);
+
+  setTimeout(() => {
+    const i = document.getElementById('frase-input');
+    if (i) i.focus();
+  }, 0);
+
   return div;
 }
 
@@ -861,11 +963,31 @@ function renderInput() {
 function renderTrascrizione() {
   const div = el('div');
 
-  // Frase
+  // Frase — editabile in qualunque momento
   const cardFrase = el('div','card');
   cardFrase.appendChild(lbl('Frase da trascrivere'));
-  const ft = el('div','frase-text'); ft.textContent = state.frase;
-  cardFrase.appendChild(ft);
+
+  const fraseRow = el('div');
+  fraseRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;';
+  const fraseInp = el('input','text-input');
+  fraseInp.type = 'text';
+  fraseInp.id = 'frase-edit';
+  fraseInp.value = state.frase;
+  fraseInp.style.cssText = 'flex:1;min-width:0;margin-bottom:0;font-size:1.2rem;';
+  fraseInp.oninput = e => { state.frase = e.target.value; };
+  fraseInp.onkeydown = e => {
+    if (e.key === 'Enter' && state.frase.trim()) {
+      e.preventDefault();
+      startLookup(state.frase.trim());
+    }
+  };
+  const btnRicarica = btn('↺');
+  btnRicarica.title = 'Usa questa frase';
+  btnRicarica.onclick = () => { if (state.frase.trim()) startLookup(state.frase.trim()); };
+  fraseRow.appendChild(fraseInp);
+  fraseRow.appendChild(btnRicarica);
+  cardFrase.appendChild(fraseRow);
+
   const noteItems = buildNoteItems();
   if (noteItems.length) {
     const note = el('div','frase-note');
@@ -881,8 +1003,43 @@ function renderTrascrizione() {
   }
   div.appendChild(cardFrase);
 
-  // Tastiera IPA
+  // Textarea — sempre editabile, Enter per riverificare
+  const ta = document.createElement('textarea');
+  ta.id = 'ipa-input';
+  ta.placeholder = 'Scrivi qui la tua trascrizione IPA…';
+  ta.spellcheck = false;
+  ta.value = state.ipaValue;
+  ta.oninput = e => { state.ipaValue = e.target.value; };
+  ta.onkeydown = e => {
+    if (e.key === 'Enter' && !e.shiftKey && state.ipaValue.trim()) {
+      e.preventDefault();
+      verifica();
+    }
+  };
+  div.appendChild(ta);
+
+  // Bottoni (senza Ricomincia — si modifica direttamente nella textarea)
+  const row = el('div','btn-row');
+  const btnVerifica = btn('Verifica', true);
+  btnVerifica.disabled = !state.ipaValue.trim();
+  btnVerifica.onclick = () => verifica();
+  const btnSol = btn('Mostra soluzione');
+  btnSol.onclick = () => mostraSoluzione();
+  const btnNuova = btn('Nuova frase');
+  btnNuova.onclick = reset;
+  row.appendChild(btnVerifica); row.appendChild(btnSol); row.appendChild(btnNuova);
+  div.appendChild(row);
+
+  // Risultato
+  if (state.result) {
+    div.appendChild(renderRisultato());
+  }
+
+  // Tastiera IPA — in fondo a tutto
   const kb = el('div','ipa-kb');
+  kb.style.marginTop = '1.5rem';
+  kb.style.borderTop = '1px solid var(--border)';
+  kb.style.paddingTop = '1rem';
   Object.entries(IPA_SYMS).forEach(([group,syms]) => {
     const g = el('div','ipa-group');
     const gl = el('span','ipa-group-label'); gl.textContent = group; g.appendChild(gl);
@@ -895,32 +1052,6 @@ function renderTrascrizione() {
     g.appendChild(keys); kb.appendChild(g);
   });
   div.appendChild(kb);
-
-  // Textarea
-  const ta = document.createElement('textarea');
-  ta.id = 'ipa-input';
-  ta.placeholder = 'Scrivi qui la tua trascrizione IPA…';
-  ta.spellcheck = false;
-  ta.value = state.ipaValue;
-  ta.oninput = e => { state.ipaValue = e.target.value; };
-  div.appendChild(ta);
-
-  // Bottoni
-  const row = el('div','btn-row');
-  const btnVerifica = btn('Verifica', true);
-  btnVerifica.disabled = !state.ipaValue.trim();
-  btnVerifica.onclick = () => verifica();
-  const btnSol = btn('Mostra soluzione');
-  btnSol.onclick = () => mostraSoluzione();
-  const btnBack = btn('← Ricomincia');
-  btnBack.onclick = reset;
-  row.appendChild(btnVerifica); row.appendChild(btnSol); row.appendChild(btnBack);
-  div.appendChild(row);
-
-  // Risultato
-  if (state.result) {
-    div.appendChild(renderRisultato());
-  }
 
   return div;
 }
@@ -946,6 +1077,49 @@ function renderRisultato() {
   const code = el('code','ipa-result'); code.textContent = r.trascrizione_corretta;
   card.appendChild(code);
 
+  // Confronto visivo (solo quando lo studente ha scritto qualcosa)
+  if (!r.soloSol && state.ipaValue.trim()) {
+    card.appendChild(lbl('Confronto'));
+    const confrontoDiv = el('div');
+    confrontoDiv.style.cssText = 'font-family:var(--mono);font-size:0.95rem;line-height:2;margin-bottom:0.75rem;';
+
+    const corretta = normalizzaIpa(r.trascrizione_corretta);
+    const studente = normalizzaIpa(state.ipaValue);
+
+    // Allineamento carattere per carattere con Levenshtein backtracking
+    const allineamento = allineaStringhe(studente, corretta);
+
+    // Riga studente
+    const rigaS = el('div');
+    rigaS.style.marginBottom = '2px';
+    const lblS = el('span');
+    lblS.style.cssText = 'font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-right:0.5rem;';
+    lblS.textContent = 'tuo:';
+    rigaS.appendChild(lblS);
+    allineamento.forEach(([cs, cc]) => {
+      const span = el('span');
+      span.textContent = cs === null ? '·' : cs;
+      if (cs !== cc) span.style.cssText = 'color:var(--red);background:#fff0f0;border-radius:2px;padding:0 1px;';
+      rigaS.appendChild(span);
+    });
+    confrontoDiv.appendChild(rigaS);
+
+    // Riga corretta
+    const rigaC = el('div');
+    const lblC = el('span');
+    lblC.style.cssText = 'font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-right:0.5rem;';
+    lblC.textContent = 'ok:';
+    rigaC.appendChild(lblC);
+    allineamento.forEach(([cs, cc]) => {
+      const span = el('span');
+      span.textContent = cc === null ? '·' : cc;
+      if (cs !== cc) span.style.cssText = 'color:var(--green);background:#f0fff4;border-radius:2px;padding:0 1px;';
+      rigaC.appendChild(span);
+    });
+    confrontoDiv.appendChild(rigaC);
+    card.appendChild(confrontoDiv);
+  }
+
   if (r.log_scontri && r.log_scontri.length) {
     card.appendChild(lbl('Scontri accentuali risolti'));
     r.log_scontri.forEach(s => {
@@ -954,6 +1128,32 @@ function renderRisultato() {
   }
 
   return card;
+}
+
+// Allinea due stringhe per il confronto visivo (Levenshtein backtracking)
+function allineaStringhe(a, b) {
+  const m = a.length, n = b.length;
+  // Costruisci matrice DP
+  const dp = Array.from({length: m+1}, (_, i) => Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+
+  // Backtrack
+  const allineamento = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && a[i-1] === b[j-1]) {
+      allineamento.unshift([a[i-1], b[j-1]]); i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j-1] <= dp[i-1][j] && dp[i][j-1] <= dp[i-1][j-1])) {
+      allineamento.unshift([null, b[j-1]]); j--;  // inserzione
+    } else if (i > 0 && (j === 0 || dp[i-1][j] <= dp[i][j-1] && dp[i-1][j] <= dp[i-1][j-1])) {
+      allineamento.unshift([a[i-1], null]); i--;  // cancellazione
+    } else {
+      allineamento.unshift([a[i-1], b[j-1]]); i--; j--;  // sostituzione
+    }
+  }
+  return allineamento;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1015,7 +1215,7 @@ function mostraSoluzione() {
 }
 
 function reset() {
-  state = { page:0, frase:'', customFrase:'', showCustom:false, infoParole:[], needsInput:[], userChoices:{}, ipaValue:'', result:null, error:'' };
+  state = { page:0, frase:'', customFrase:'', infoParole:[], needsInput:[], userChoices:{}, ipaValue:'', result:null, error:'' };
   render();
 }
 
@@ -1079,8 +1279,19 @@ const CONSONANTI_SONORE = new Set('bdgvlmnr');
 const AFFRICATE_DOPPIE = ['ttʃ','ddʒ','tts','ddz'];
 const AFFRICATE_SCEMPIE = ['tʃ','dʒ','ts','dz'];
 
+// Parole grammaticali sempre atone — non ricevono mai accento da Wiktionary
+const PAROLE_ATONE = new Set([
+  'che','se','e','a','su','i','il','lo','la','gli','le','un','uno','una',
+  'di','da','in','con','per','tra','fra','al','del','nel','col','sul',
+  'mi','ti','si','ci','vi','lo','la','li','le','ne','gli',
+  'non','ma','però','anche','già','più','meno','molto','poco',
+]);
+
 const LISTA_ACUTO = new Set(['sé','né','perché','affinché','benché','poiché','giacché','finché','sicché','poté']);
-const PAROLE_ATTIVANTI = new Set(['qualche','che','e','se','a','su','i','ho','ha','hai','fa','va','sa','sta']);
+// Parole attivanti nella forma TRASLITTERATA
+// che→ke, qualche→kwàlke, ho→ò, ha→à (tonica, diversa da a preposizione)
+// hai/i esclusi: finali troppo comuni in altre parole
+const PAROLE_ATTIVANTI = new Set(['kwàlke','ke','e','se','a','su','ò','à','fà','và','sà','stà']);
 const PAROLE_RADDOPPIO_INIZIALE = new Set(['dio','dea','dei','dee']);
 const LETTERE_ALFABETO = {A:'à',B:'bbì',C:'ccì',D:'ddì',E:'è',F:'èffe',G:'ggì',H:'àcca',I:'ì',J:'ggèi',K:'kàppa',L:'èlle',M:'èmme',N:'ènne',O:'ò',P:'ppì',Q:'ccù',R:'èrre',S:'èsse',T:'ttì',U:'ù',V:'vvì',W:'dòppjavvì',X:'ìks',Y:'ìpsilon',Z:'zzèta'};
 
@@ -1109,7 +1320,19 @@ function haVocaleAccentataNoFinale(parola) {
 }
 
 function isMonosillabo(parola) {
-  return [...parola].filter(c => VOCALI.has(c)).length === 1;
+  // Salta la u di qu e le semivocali u/i prevocaliche
+  const p = parola.replace(/qu/gi, 'q_');
+  const chars = [...p];
+  let nuclei = 0;
+  for (let k = 0; k < chars.length; k++) {
+    if (VOCALI.has(chars[k])) {
+      // u/i non accentate seguite da vocale = semivocale, non conta come nucleo
+      const seguente = chars[k+1] || '';
+      if ('ui'.includes(chars[k]) && VOCALI.has(seguente)) continue;
+      nuclei++;
+    }
+  }
+  return nuclei === 1;
 }
 
 function forzaAccento(parola) {
@@ -1213,7 +1436,9 @@ function traslittera(p) {
   p = p.replace(/ġ/g,'g').replace(/Ġ/g,'G');
   // h -> ''
   p = p.replace(/h/g,'').replace(/H/g,'');
-  // q -> k
+  // qu → kw (prima di q→k, altrimenti u rimane e non diventa semivocale)
+  p = p.replace(/qu/g, 'kw').replace(/Qu/g, 'Kw').replace(/QU/g, 'KW');
+  // q → k (per eventuali q rimaste)
   p = p.replace(/q/g,'k').replace(/Q/g,'K');
   // ṣ -> z
   p = p.replace(/ṣ/g,'z');
@@ -1263,42 +1488,70 @@ function elaboraParola(parola, wiktFn) {
   }
   parola = parola.replace(/z/g, ris.has_voiced_z ? 'dz' : 'ts');
 
-  // Accento da Wiktionary — trova la vocale tonica nella parola ortografica
-  if (!haSegnaccento && ris.accento) {
+  // Accento da Wiktionary — salta per parole grammaticali atone
+  const parolaBase = parola.replace(/[^a-zà-ùɛɔ]/gi,'');
+  if (!haSegnaccento && ris.accento && !PAROLE_ATONE.has(parolaBase)) {
     const acc = ris.accento;
 
     if (acc.tipo === 'it-pr' && ris.accentoGrafico) {
-      // Usa direttamente la forma grafica di it-pr (es. "càne" → mappa accento)
-      // Trova quale vocale è accentata nella forma it-pr e dove cade nella parola
       const formaItPr = ris.accentoGrafico.toLowerCase();
       const mappa = {'à':'a','è':'e','é':'e','ò':'o','ó':'o','ù':'u','ì':'i'};
-      // Cerca la vocale accentata e la sua posizione nella parola senza accenti
-      let posItPr = -1;
+      // Trova la vocale accentata nella forma it-pr e il suo indice tra le vocali
+      let indiceVocaleItPr = 0; // quante vocali sono venute prima nella forma it-pr
       let vaItPr = null;
+      const tutteVocali = 'aeiouàèéòóùì';
       for (let k = 0; k < formaItPr.length; k++) {
-        if (mappa[formaItPr[k]]) { posItPr = k; vaItPr = formaItPr[k]; break; }
+        if (mappa[formaItPr[k]]) { vaItPr = formaItPr[k]; break; }
+        if (tutteVocali.includes(formaItPr[k])) indiceVocaleItPr++;
       }
-      if (posItPr >= 0 && vaItPr) {
-        // Conta quante vocali ci sono prima di posItPr nella forma it-pr
-        // e trova la corrispondente posizione in parola
+      if (vaItPr !== null) {
         const mappaAccento = {'à':'à','è':'è','é':'é','ò':'ò','ó':'ó','ù':'ù','ì':'ì',
           'a':'à','e':'è','o':'ò','i':'ì','u':'ù'};
-        // Se la vocale it-pr è già accentata (es. è,é) usa quella qualità
-        // altrimenti usa grave
         const vAccentata = vaItPr in {'à':1,'è':1,'é':1,'ò':1,'ó':1,'ù':1,'ì':1} ?
           vaItPr : mappaAccento[mappa[vaItPr]] || mappa[vaItPr];
-        // La vocale base (senza accento)
         const vBase = mappa[vaItPr] || vaItPr;
-        // Sostituisci la prima occorrenza di vBase in parola con vAccentata
-        const re = new RegExp(`(?<![àèéòóùì])${vBase}(?![àèéòóùì])`, 'i');
-        parola = parola.replace(re, vAccentata);
+        // Trova la vocale all'indice corretto nella parola ortografica
+        // saltando la u di qu (non è vocale sillabica)
+        const parolaPerConteggio = parola.replace(/qu/gi, 'q_');
+        let conta = 0, posTonica = -1;
+        for (let k = 0; k < parolaPerConteggio.length; k++) {
+          if ('aeiou'.includes(parolaPerConteggio[k])) {
+            if (conta === indiceVocaleItPr) { posTonica = k; break; }
+            conta++;
+          }
+        }
+        if (posTonica >= 0) {
+          // Non accentare se la vocale è una semivocale (u/i seguita da vocale)
+          const seguente = parola[posTonica + 1] || '';
+          const isSemivocale = 'ui'.includes(parola[posTonica]) && 'aeiouàèéòóùì'.includes(seguente);
+          if (!isSemivocale) {
+            parola = parola.slice(0, posTonica) + vAccentata + parola.slice(posTonica + 1);
+          }
+        } else {
+          // Fallback: sostituisci prima occorrenza
+          const re = new RegExp(`(?<![àèéòóùì])${vBase}(?![àèéòóùì])`, 'i');
+          parola = parola.replace(re, vAccentata);
+        }
       }
     } else if (acc.vocale) {
-      // Caso IPA: vocale tonica nota
+      // Caso IPA: vocale tonica nota — usa indice 0 (prima vocale), saltando u di qu
       const vOrtografico = {'ɛ':'e','ɔ':'o','e':'e','o':'o','a':'a','i':'i','u':'u'}[acc.vocale] || acc.vocale;
       const vAccentata = {'ɛ':'è','ɔ':'ò','e':'é','o':'ó','a':'à','i':'ì','u':'ù'}[acc.vocale] || acc.vocale;
-      const re = new RegExp(`(?<![àèéòóùì])${vOrtografico}(?![àèéòóùì])`, 'i');
-      parola = parola.replace(re, vAccentata);
+      const parolaPerConteggio = parola.replace(/qu/gi, 'q_');
+      let posTonica = -1;
+      for (let k = 0; k < parolaPerConteggio.length; k++) {
+        if (parolaPerConteggio[k] === vOrtografico) { posTonica = k; break; }
+      }
+      if (posTonica >= 0) {
+        const seguente = parola[posTonica + 1] || '';
+        const isSemivocale = 'ui'.includes(parola[posTonica]) && 'aeiouàèéòóùì'.includes(seguente);
+        if (!isSemivocale) {
+          parola = parola.slice(0, posTonica) + vAccentata + parola.slice(posTonica + 1);
+        }
+      } else {
+        const re = new RegExp(`(?<![àèéòóùì])${vOrtografico}(?![àèéòóùì])`, 'i');
+        parola = parola.replace(re, vAccentata);
+      }
     }
     // caso 'piano': parola piana regolare, lasciamo senza accento
     // (verrà trattata come sdrucciola dall'algoritmo se non trova accento)
@@ -1306,19 +1559,27 @@ function elaboraParola(parola, wiktFn) {
 
   // Default piano: se parola polisillabica ancora senza accento,
   // metti accento sulla penultima vocale (regola piana)
+  // Salta la u di qu (non è vocale sillabica)
   if (!isMonosillabo(parola) && !haVocaleAccentataNoFinale(parola)) {
-    // Trova le posizioni di tutte le vocali non accentate
-    const VOCALI_BASE = 'aeiou';
+    const parolaPerConteggio = parola.replace(/qu/gi, 'q_');
     const posVocali = [];
-    for (let k = 0; k < parola.length; k++) {
-      if (VOCALI_BASE.includes(parola[k])) posVocali.push(k);
+    for (let k = 0; k < parolaPerConteggio.length; k++) {
+      if ('aeiou'.includes(parolaPerConteggio[k])) posVocali.push(k);
     }
-    // Penultima vocale = posVocali[posVocali.length - 2]
     if (posVocali.length >= 2) {
       const pos = posVocali[posVocali.length - 2];
       const mappaGrave = { a:'à', e:'è', o:'ò', i:'ì', u:'ù' };
-      parola = parola.slice(0, pos) + mappaGrave[parola[pos]] + parola.slice(pos+1);
+      parola = parola.slice(0, pos) + (mappaGrave[parola[pos]] || parola[pos]) + parola.slice(pos+1);
     }
+  }
+
+  // ─── Controllo iati i/u ───────────────────────────────────────────
+  const _lemmaKey = parola.replace(/[^a-zà-ùɛɔ]/gi, '').toLowerCase();
+  if (IATI_IU[_lemmaKey]) {
+    parola = IATI_IU[_lemmaKey];
+  } else if (IATI_AMBIGUI[_lemmaKey]) {
+    return { frammento: parola, richiesta: true,
+      msg: `La parola "${parola}" ha doppia lettura: ${IATI_AMBIGUI[_lemmaKey].opzioni.join(' / ')}. Quale intendi?` };
   }
 
   // Traslitterazione
@@ -1380,15 +1641,17 @@ function raddoppiamentoFonosintattico(frase) {
   frase = risultato;
 
   // 3c: RF dopo parole attivanti
-  // Stessa logica: escludi s impura e doppie già presenti
+  // Le parole attivanti devono essere parole intere:
+  // precedute da inizio stringa, | oppure $
   for (const att of PAROLE_ATTIVANTI) {
     const escaped = att.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    const re = new RegExp(escaped + '\\$(.)', 'g');
-    frase = frase.replace(re, (m, c, offset) => {
-      const posC = offset + att.length + 1;
-      if (isSImpura(frase, posC)) return att + '$' + c;
-      if (isGiaDopp(frase, posC)) return att + '$' + c;
-      return att + c + c;
+    // Lookahead negativo per assicurarci che "att" sia preceduto da $, |, o inizio
+    const re = new RegExp('(^|\\$|\\|)(' + escaped + ')\\$(.)', 'g');
+    frase = frase.replace(re, (m, pre, parola, c, offset) => {
+      const posC = offset + pre.length + parola.length + 1;
+      if (isSImpura(frase, posC)) return pre + parola + '$' + c;
+      if (isGiaDopp(frase, posC)) return pre + parola + '$' + c;
+      return pre + parola + c + c;
     });
   }
 
@@ -1590,10 +1853,12 @@ function sillabifica(frase) {
 
 function individuaJW(frase) {
   const VOCALI_STR = 'aeiouàèéòóùìɛɔ';
-  // i non accentata + vocale
+  // i non accentata + vocale (ï è protetta)
   frase = frase.replace(/i(?=[aeiouàèéòóùìɛɔ])/g, 'j');
-  // u non accentata + vocale
+  // u non accentata + vocale (ü è protetta)
   frase = frase.replace(/u(?=[aeiouàèéòóùìɛɔ])/g, 'w');
+  // Ripristino caratteri protettivi
+  frase = frase.replace(/ü/g, 'u').replace(/ï/g, 'i');
   return frase;
 }
 
@@ -1727,6 +1992,7 @@ function trascrivi(testo, wiktFn) {
   return { trascrizione, log_scontri: log, richiesta_utente: false, messaggio: '' };
 }
 
+// ════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════
 // AVVIO
 // ═══════════════════════════════════════════════════════
