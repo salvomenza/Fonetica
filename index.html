@@ -226,7 +226,7 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.61.2</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.0</p>
   <div id="app"></div>
   <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.61.2</footer>
 </div>
@@ -1585,11 +1585,15 @@ function getEffectiveWiktFn() {
   state.infoParole.forEach(info => { map[info.word] = info; });
   return function(parola) {
     const p = parola.toLowerCase().trim();
-    const ch = state.userChoices[p] || {};
+    // Normalizza rimuovendo accenti per la ricerca nella cache
+    // (es. 'hò' deve trovare 'ho', 'fà' deve trovare 'fa', ecc.)
+    const pNorm = p.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const ch = state.userChoices[p] || state.userChoices[pNorm] || {};
 
     // Parola trovata su Wiktionary
-    if (map[p]) {
-      const info = Object.assign({}, map[p]);
+    if (map[p] || map[pNorm]) {
+      const mapKey = map[p] ? p : pNorm;
+      const info = Object.assign({}, map[mapKey]);
       // Integra s/z scelta dall'utente (needsInputSZ)
       if (ch.sz) {
         info.has_voiced_s = ch.sz === 'z';
@@ -2385,9 +2389,6 @@ function assimilaNasale(frase) {
   const log = [];
   const P = '\\.?[ˈˌ]?';
   const regole = [
-    [new RegExp(`[nm](?=${P}tʃ)`, 'g'), 'ɲ', 'palatale (tʃ)'],
-    [new RegExp(`[nm](?=${P}ddʒ)`, 'g'), 'ɲ', 'palatale (ddʒ)'],
-    [new RegExp(`[nm](?=${P}dʒ)`, 'g'), 'ɲ', 'palatale (dʒ)'],
     [new RegExp(`[nm](?=${P}ʃ)`, 'g'), 'ɲ', 'palatale (ʃ)'],
     [new RegExp(`[nm](?=${P}ʎ)`, 'g'), 'ɲ', 'palatale (ʎ)'],
     [new RegExp(`[nm](?=${P}ɲ)`, 'g'), 'ɲ', 'palatale (ɲ)'],
