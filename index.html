@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.0</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.2</p>
   <div id="app"></div>
-  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.61.2</footer>
+  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.2</footer>
 </div>
 
 <script>
@@ -821,7 +821,11 @@ async function doLookup(frase) {
     const risultato = await wiktionaryLookup(cleanNorm);
     if (risultato) {
       const info = parseWiktionaryResult(risultato, cleanNorm);
-      if (info) {
+      // Se trovata ma senza accento e non è monosillabo → chiedi all'utente
+      // (es. Wiktionary dà redirect/disambiguazione, il parser non estrae nulla di utile)
+      const vocaliInParola = (cleanNorm.match(/[aeiou]/gi) || []).length;
+      const isMonosill = vocaliInParola <= 1;
+      if (info && (info.accento !== null || isMonosill)) {
         results.push(info);
         // s/z ambigua
         if (!info.has_voiced_s && !info.has_voiced_z && !info.has_voiceless_z) {
@@ -832,6 +836,9 @@ async function doLookup(frase) {
           const vt = info.accento.vocale;
           if (vt === 'e' || vt === 'o') needsInputEO.push(cleanNorm);
         }
+      } else {
+        // Trovata ma inutilizzabile: tratta come non trovata
+        needsInputAccento.push({ word: cleanNorm, display: clean });
       }
     } else {
       if (cleanNorm.length > 1) {
@@ -858,7 +865,13 @@ async function doLookup(frase) {
 // ═══════════════════════════════════════════════════════
 // CONFRONTO TRASCRIZIONI
 // ═══════════════════════════════════════════════════════
-function normalizzaIpa(s) { return s.replace(/[\[\]\s]/g,'').trim(); }
+function normalizzaIpa(s) {
+  return s
+    .replace(/'/g, 'ˈ')   // apostrofo → accento primario IPA
+    .replace(/:/g, 'ː')   // due punti → cronema IPA
+    .replace(/[\[\]\s]/g, '')
+    .trim();
+}
 
 function levenshtein(a, b) {
   const m = a.length, n = b.length;
@@ -1470,8 +1483,13 @@ function renderRisultato() {
     rigaS.appendChild(lblS);
     allineamento.forEach(([cs, cc]) => {
       const span = el('span');
-      span.textContent = cs === null ? '·' : cs;
-      if (cs !== cc) span.style.cssText = 'color:var(--red);background:#fff0f0;border-radius:2px;padding:0 1px;';
+      if (cs === null) {
+        span.textContent = ' ';
+        span.style.cssText = 'display:inline-block;min-width:0.55em;background:#fcd34d;border-radius:2px;';
+      } else {
+        span.textContent = cs;
+        if (cs !== cc) span.style.cssText = 'color:var(--red);background:#fff0f0;border-radius:2px;padding:0 1px;';
+      }
       rigaS.appendChild(span);
     });
     confrontoDiv.appendChild(rigaS);
@@ -1484,8 +1502,13 @@ function renderRisultato() {
     rigaC.appendChild(lblC);
     allineamento.forEach(([cs, cc]) => {
       const span = el('span');
-      span.textContent = cc === null ? '·' : cc;
-      if (cs !== cc) span.style.cssText = 'color:var(--green);background:#f0fff4;border-radius:2px;padding:0 1px;';
+      if (cc === null) {
+        span.textContent = ' ';
+        span.style.cssText = 'display:inline-block;min-width:0.55em;background:#bbf7d0;border-radius:2px;';
+      } else {
+        span.textContent = cc;
+        if (cs !== cc) span.style.cssText = 'color:var(--green);background:#f0fff4;border-radius:2px;padding:0 1px;';
+      }
       rigaC.appendChild(span);
     });
     confrontoDiv.appendChild(rigaC);
