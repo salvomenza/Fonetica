@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.2</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.3</p>
   <div id="app"></div>
-  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.2</footer>
+  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.3</footer>
 </div>
 
 <script>
@@ -785,7 +785,7 @@ async function doLookup(frase) {
     const clean = word.replace(/[^a-zA-Zàèéìíîòóùúûäëïöüâêôûœæ]/gi, '');
     if (!clean) continue;
     const cleanNorm = normalizza(clean);
-    if (IATI_IU[cleanNorm] || PAROLE_ATONE.has(cleanNorm)) continue;
+    if (IATI_IU[cleanNorm] || PAROLE_ATONE.has(cleanNorm) || MONOSILLABI_FISSI[cleanNorm]) continue;
 
     if (haAccentoNonFinale(clean)) {
       // La parola ha già accento non finale: l'accento è dato, non cercare su Wiki
@@ -1758,6 +1758,17 @@ const PAROLE_ATONE = new Set([
 ]);
 
 const LISTA_ACUTO = new Set(['sé','né','perché','affinché','benché','poiché','giacché','finché','sicché','poté']);
+// Monosillabi con forma traslitterata fissa (bypassano Wiktionary e forzaAccento)
+// Chiave: forma ortografica base; valore: forma già pronta per la traslitterazione
+const MONOSILLABI_FISSI = {
+  'ho': 'ò',   // ausiliare avere → [ɔ] tonico, attiva RF
+  'ha': 'à',   // ausiliare avere → [a] tonico, attiva RF
+  'do': 'dò',  // verbo dare → [ɔ] tonico, attiva RF
+  'fa': 'fà',  // verbo fare → [a] tonico, attiva RF
+  'sta': 'stà',// verbo stare → [a] tonico, attiva RF
+  'va': 'và',  // verbo andare → [a] tonico, attiva RF
+  'sa': 'sà',  // verbo sapere → [a] tonico, attiva RF
+};
 // Parole attivanti nella forma TRASLITTERATA
 // che→ke, qualche→kwàlke, ho→ò, ha→à (tonica, diversa da a preposizione)
 // hai/i esclusi: finali troppo comuni in altre parole
@@ -1939,6 +1950,14 @@ function elaboraParola(parola, wiktFn) {
   // Va fatto subito, prima di Wiktionary e dell'inserimento dell'accento,
   // altrimenti la chiave non matcha (es. "poeta" diventa "poèta" dopo Wiktionary)
   const _lemmaKey = parola.replace(/[^a-zà-ùɛɔ]/gi, '').toLowerCase();
+
+  // ─── Monosillabi fissi ────────────────────────────────────────────
+  if (MONOSILLABI_FISSI[_lemmaKey]) {
+    parola = MONOSILLABI_FISSI[_lemmaKey];
+    parola = traslittera(parola);
+    return { frammento: parola + '$', richiesta: false };
+  }
+
   if (IATI_IU[_lemmaKey]) {
     parola = IATI_IU[_lemmaKey];
     // Salta Wiktionary: vai direttamente a traslitterazione
