@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.4</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.5</p>
   <div id="app"></div>
-  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.4</footer>
+  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.5</footer>
 </div>
 
 <script>
@@ -854,7 +854,34 @@ async function doLookup(frase) {
             if (fake) results.push(fake);
           }
         } else {
-          needsInputAccento.push({ word: cleanNorm, display: clean });
+          // Conta vocali sillabiche (escludi u di qu)
+          const cleanPerVocali = cleanNorm.replace(/qu/gi, 'q_');
+          const vocaliSillabiche = (cleanPerVocali.match(/[aeiou]/gi) || []).length;
+          const isBisillabo = vocaliSillabiche === 2;
+          if (isBisillabo) {
+            // Bisillabo: accento automatico sulla penultima, chiedi solo qualità e/o
+            // Costruisci forma con accento grave sulla penultima vocale
+            const posizioni = [];
+            const cleanPerPos = cleanNorm.replace(/qu/gi, 'q_');
+            for (let ki = 0; ki < cleanPerPos.length; ki++) {
+              if (/[aeiou]/i.test(cleanPerPos[ki])) posizioni.push(ki);
+            }
+            const mappaGrave = { 'a':'à','e':'è','i':'ì','o':'ò','u':'ù' };
+            const posPenult = posizioni[posizioni.length - 2];
+            const vBase = cleanNorm[posPenult].toLowerCase();
+            const formaPenult = cleanNorm.slice(0, posPenult) + (mappaGrave[vBase] || vBase) + cleanNorm.slice(posPenult + 1);
+            const fake = parseWiktionaryResult({ tipo: 'sill', valore: formaPenult, ipa: null }, cleanNorm);
+            if (fake) {
+              results.push(fake);
+              // Chiedi qualità solo se vocale tonica è e o o
+              if (fake.accento) {
+                const vt = fake.accento.vocale;
+                if (vt === 'e' || vt === 'o' || vt === 'ɛ' || vt === 'ɔ') needsInputEO.push(cleanNorm);
+              }
+            }
+          } else {
+            needsInputAccento.push({ word: cleanNorm, display: clean });
+          }
         }
       }
     }
@@ -1114,15 +1141,24 @@ function renderInput() {
     sec.style.cssText = 'margin-bottom:1rem;';
     const secLbl = el('p');
     secLbl.style.cssText = 'font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em;';
-    secLbl.textContent = 'qualità e/o tonica';
+    secLbl.textContent = 'qualità della vocale tonica';
     sec.appendChild(secLbl);
     state.needsInputEO.forEach(word => {
       const ch = state.userChoices[word] || {};
+      // Trova la vocale tonica dalla cache (o dalla forma auto-accentata)
+      const infoWord = state.infoParole.find(i => i.word === word);
+      const vTonica = infoWord && infoWord.accento ? infoWord.accento.vocale : null;
+      const isE = !vTonica || vTonica === 'e' || vTonica === 'ɛ';
+      const isO = !vTonica || vTonica === 'o' || vTonica === 'ɔ';
       const block = el('div','word-input-block');
       const wl = el('div','word-label'); wl.textContent = word;
       block.appendChild(wl);
       const row = el('div','choice-row');
-      [['e','e chiusa'],['ɛ','ɛ aperta'],['o','o chiusa'],['ɔ','ɔ aperta']].forEach(([val,lab]) => {
+      // Mostra solo i bottoni pertinenti alla vocale tonica
+      const opzioni = [];
+      if (isE) opzioni.push(['e','e chiusa'], ['ɛ','ɛ aperta']);
+      if (isO) opzioni.push(['o','o chiusa'], ['ɔ','ɔ aperta']);
+      opzioni.forEach(([val,lab]) => {
         const b = el('button','cbtn' + (ch.v===val?' sel':''));
         b.textContent = lab;
         b.onclick = () => { const cur = (state.userChoices[word]||{}).v; setChoice(word,'v', cur===val ? null : val); };
@@ -1648,9 +1684,53 @@ function getEffectiveWiktFn() {
     }
 
     // Parola non trovata: l'utente ha fornito il testo accentato (needsInputAccento)
-    if (ch.testo && ch.testo.trim()) {
-      const base = parseWiktionaryResult({ tipo: 'sill', valore: ch.testo.trim(), ipa: null }, p);
-      if (base) return base;
+    // Se l'utente non ha modificato il campo (o lo ha lasciato uguale alla forma base),
+    // applica accento di default sulla penultima vocale (piano)
+    {
+      const testoUtente = (ch.testo || '').trim();
+      const haAccentoNonFinale = /[àèéòóùì][a-zàèéòóùì]/i.test(testoUtente);
+      let testoFinale = testoUtente;
+      if (testoUtente && !haAccentoNonFinale) {
+        // Nessun accento non-finale inserito: metti accento grave sulla penultima vocale
+        const vocaliRe = /[aeiou]/gi;
+        const posizioni = [];
+        let m;
+        while ((m = vocaliRe.exec(testoUtente)) !== null) posizioni.push(m.index);
+        if (posizioni.length >= 2) {
+          const posPenult = posizioni[posizioni.length - 2];
+          const mappaGrave = { 'a':'à','e':'è','i':'ì','o':'ò','u':'ù' };
+          const vOrig = testoUtente[posPenult].toLowerCase();
+          const vAcc = mappaGrave[vOrig] || vOrig;
+          testoFinale = testoUtente.slice(0, posPenult) + vAcc + testoUtente.slice(posPenult + 1);
+        }
+      }
+      // Integra qualità e/o scelta dall'utente per parole non trovate su Wiktionary
+      if (testoFinale) {
+        const base = parseWiktionaryResult({ tipo: 'sill', valore: testoFinale, ipa: null }, p);
+        if (base) {
+          if (ch.v) {
+            base.has_epsilon  = ch.v === 'ɛ';
+            base.has_open_o   = ch.v === 'ɔ';
+            base.has_closed_e = ch.v === 'e';
+            base.has_closed_o = ch.v === 'o';
+            // Aggiorna accentoGrafico con il timbro scelto
+            if (base.accentoGrafico) {
+              const mappaV = { 'ɛ':'è', 'e':'é', 'ɔ':'ò', 'o':'ó' };
+              const nuovo = mappaV[ch.v];
+              if (nuovo) {
+                base.accentoGrafico = base.accentoGrafico
+                  .replace(/[èé]/g, nuovo.includes('e') ? nuovo : '$&')
+                  .replace(/[òó]/g, nuovo.includes('o') ? nuovo : '$&');
+              }
+            }
+            if (base.accento) {
+              const qualita = (ch.v === 'ɛ' || ch.v === 'ɔ') ? 'aperta' : 'chiusa';
+              base.accento = Object.assign({}, base.accento, { vocale: ch.v, qualita });
+            }
+          }
+          return base;
+        }
+      }
     }
 
     // Fallback: nessuna info
