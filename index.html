@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.6</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.8</p>
   <div id="app"></div>
-  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.6</footer>
+  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.8</footer>
 </div>
 
 <script>
@@ -2514,9 +2514,6 @@ function assimilaNasale(frase) {
   const log = [];
   const P = '\\.?[ˈˌ]?';
   const regole = [
-    [new RegExp(`[nm](?=${P}ʃ)`, 'g'), 'ɲ', 'palatale (ʃ)'],
-    [new RegExp(`[nm](?=${P}ʎ)`, 'g'), 'ɲ', 'palatale (ʎ)'],
-    [new RegExp(`[nm](?=${P}ɲ)`, 'g'), 'ɲ', 'palatale (ɲ)'],
     [new RegExp(`[nm](?=${P}kw)`, 'g'), 'ŋ', 'velare (kw)'],
     [new RegExp(`[nm](?=${P}gw)`, 'g'), 'ŋ', 'velare (gw)'],
     [new RegExp(`[nm](?=${P}k)`, 'g'), 'ŋ', 'velare (k)'],
@@ -2536,7 +2533,22 @@ function assimilaNasale(frase) {
   }
   // Ordina per posizione nella stringa per garantire corrispondenza con sillabe
   logConPos.sort((a, b) => a._pos - b._pos);
-  const logAN = logConPos.map(({_pos, ...e}) => e);
+  // Per ogni voce, calcola quante occorrenze dello stesso simbolo risultante
+  // esistono PRIMA di questa posizione nella stringa post-assimilazione.
+  // Questo ci permette di trovare la sillaba giusta dopo la sillabificazione.
+  const occCount = {};
+  const logAN = logConPos.map(entry => {
+    const { _pos, ...e } = entry;
+    const m2 = e.testo.match(/→ ([ŋɱɲm])/);
+    if (!m2) return e;
+    const sim = m2[1];
+    // Conta occorrenze di sim in frase prima di _pos
+    const strPrima = frase.slice(0, _pos);
+    const occPrima = (strPrima.match(new RegExp(sim, 'g')) || []).length;
+    occCount[sim] = occCount[sim] || 0;
+    const occIdx = occPrima; // indice assoluto di questa occorrenza nella stringa finale
+    return { ...e, _simIdx: { sim, occIdx } };
+  });
   return { frase, log: logAN };
 }
 
@@ -2781,21 +2793,29 @@ function trascrivi(testo, wiktFn) {
     return entry;
   });
 
-  // Arricchisci logAN con sylIdx: cerca sequenzialmente nelle sillabe
-  const usedSylIdx = new Map(); // simbolo → ultimo indice usato
+  // Arricchisci logAN con sylIdx usando la posizione _pos nella stringa
+  // Costruiamo una mappa posizione→indice sillaba dalla stringa sillabificata
+  {
+    // frase sillabificata = sillabe.join(''), ma i punti/marcatori non corrispondono
+    // alla stringa pre-sillabificazione. Usiamo la lunghezza cumulativa delle sillabe.
+  }
   const logANFull = logAN.map(entry => {
     if (typeof entry !== 'object') return entry;
-    const m = entry.testo.match(/→ ([ŋɱɲm])/);
-    if (!m) return entry;
-    const simbolo = m[1];
-    const startFrom = (usedSylIdx.get(simbolo) || -1) + 1;
-    for (let i = startFrom; i < sillabe.length; i++) {
-      if (sillabe[i].includes(simbolo)) {
-        usedSylIdx.set(simbolo, i);
-        return { ...entry, sylIdx: i };
+    const { _simIdx, ...entryClean } = entry;
+    if (!_simIdx) return entryClean;
+    const { sim, occIdx } = _simIdx;
+    // Trova la occIdx-esima occorrenza di sim nelle sillabe
+    let trovate = 0;
+    // sim è sempre uno di ŋ ɱ ɲ m — nessun carattere speciale regex
+    for (let i = 0; i < sillabe.length; i++) {
+      const core = sillabe[i].replace(/^[.ˈˌ]+/, '');
+      const occ = (core.match(new RegExp(sim, 'g')) || []).length;
+      for (let k = 0; k < occ; k++) {
+        if (trovate === occIdx) return { ...entryClean, sylIdx: i };
+        trovate++;
       }
     }
-    return entry;
+    return entryClean;
   });
   // Aggiungi logId univoco a ogni voce di log (separato per sezione)
   const log = [...logScontri, ...logValli];
