@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.5</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.6</p>
   <div id="app"></div>
-  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.5</footer>
+  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.6</footer>
 </div>
 
 <script>
@@ -855,32 +855,33 @@ async function doLookup(frase) {
           }
         } else {
           // Conta vocali sillabiche (escludi u di qu)
-          const cleanPerVocali = cleanNorm.replace(/qu/gi, 'q_');
-          const vocaliSillabiche = (cleanPerVocali.match(/[aeiou]/gi) || []).length;
-          const isBisillabo = vocaliSillabiche === 2;
-          if (isBisillabo) {
-            // Bisillabo: accento automatico sulla penultima, chiedi solo qualità e/o
-            // Costruisci forma con accento grave sulla penultima vocale
-            const posizioni = [];
-            const cleanPerPos = cleanNorm.replace(/qu/gi, 'q_');
-            for (let ki = 0; ki < cleanPerPos.length; ki++) {
-              if (/[aeiou]/i.test(cleanPerPos[ki])) posizioni.push(ki);
-            }
-            const mappaGrave = { 'a':'à','e':'è','i':'ì','o':'ò','u':'ù' };
-            const posPenult = posizioni[posizioni.length - 2];
+          // Accento di default sulla penultima vocale sillabica (piano)
+          // L'utente può correggere tramite il campo testo se la parola è sdrucciola/ossitona
+          const cleanPerPos = cleanNorm.replace(/qu/gi, 'q_');
+          const posizioniVocali = [];
+          for (let ki = 0; ki < cleanPerPos.length; ki++) {
+            if (/[aeiou]/i.test(cleanPerPos[ki])) posizioniVocali.push(ki);
+          }
+          const mappaGrave = { 'a':'à','e':'è','i':'ì','o':'ò','u':'ù' };
+          let formaPenult = cleanNorm;
+          if (posizioniVocali.length >= 2) {
+            const posPenult = posizioniVocali[posizioniVocali.length - 2];
             const vBase = cleanNorm[posPenult].toLowerCase();
-            const formaPenult = cleanNorm.slice(0, posPenult) + (mappaGrave[vBase] || vBase) + cleanNorm.slice(posPenult + 1);
-            const fake = parseWiktionaryResult({ tipo: 'sill', valore: formaPenult, ipa: null }, cleanNorm);
-            if (fake) {
-              results.push(fake);
-              // Chiedi qualità solo se vocale tonica è e o o
-              if (fake.accento) {
-                const vt = fake.accento.vocale;
-                if (vt === 'e' || vt === 'o' || vt === 'ɛ' || vt === 'ɔ') needsInputEO.push(cleanNorm);
-              }
+            formaPenult = cleanNorm.slice(0, posPenult) + (mappaGrave[vBase] || vBase) + cleanNorm.slice(posPenult + 1);
+          }
+          const fake = parseWiktionaryResult({ tipo: 'sill', valore: formaPenult, ipa: null }, cleanNorm);
+          if (fake) {
+            results.push(fake);
+            // Chiedi s/z se intervocalica
+            if (haSZ(cleanNorm)) needsInputSZ.push(cleanNorm);
+            // Chiedi qualità solo se vocale tonica è e o o
+            if (fake.accento) {
+              const vt = fake.accento.vocale;
+              if (vt === 'e' || vt === 'o' || vt === 'ɛ' || vt === 'ɔ') needsInputEO.push(cleanNorm);
             }
-          } else {
-            needsInputAccento.push({ word: cleanNorm, display: clean });
+            // Per trisillabi+: mostra campo testo per eventuale correzione posizione accento
+            const vocaliSillabiche = posizioniVocali.length;
+            if (vocaliSillabiche > 2) needsInputAccento.push({ word: cleanNorm, display: formaPenult });
           }
         }
       }
@@ -1057,13 +1058,13 @@ function renderInput() {
     sec.style.cssText = 'margin-bottom:1rem;';
     const secLbl = el('p');
     secLbl.style.cssText = 'font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em;';
-    secLbl.innerHTML = 'Modifica le seguenti parole in modo da segnalare:<ul style="margin:0.3rem 0 0.3rem 1.2rem;"><li>la posizione dell\'accento con una vocale accentata</li><li>usando ṣ per s sonora (come in "sbadiglio") o dz per eventuali z sonore (come in "zero")</li></ul>Non fare nulla e clicca su Prosegui in caso di s/z sorde e monosillabi atoni.';
+    secLbl.innerHTML = 'Correggi la posizione dell\'accento se la parola non è piana (accento già messo sulla penultima di default).';
     sec.appendChild(secLbl);
 
     // Tastierina accenti
     const kbRow = el('div');
     kbRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.75rem;';
-    ['ṣ','dz','é','ó'].forEach(sym => {
+    ['à','è','é','ì','ò','ó','ù'].forEach(sym => {
       const k = el('button','ipa-key');
       k.textContent = sym;
       k.style.fontSize = '0.85rem';
