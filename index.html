@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.8</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.9</p>
   <div id="app"></div>
-  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.8</footer>
+  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.9</footer>
 </div>
 
 <script>
@@ -2172,13 +2172,7 @@ function pulisciDoppiepausa(frase) {
 }
 
 function raddoppiamentoFonosintattico(frase) {
-  const logRF = [];
-  // 3a: parole con raddoppiamento iniziale fisso (dio, dea, dei, dee)
-  // Solo se precedute da vocale (non da consonante né da inizio stringa)
-  for (const parola of PAROLE_RADDOPPIO_INIZIALE) {
-    const re = new RegExp('([aeiouàèéòóùìɛɔ|])\\$(' + parola + ')', 'g');
-    frase = frase.replace(re, (m, pre, p) => pre + '$' + p[0] + p);
-  }
+  const logRF = []; // {testo, _pos} — _pos è la posizione della consonante raddoppiata nella stringa post-RF
 
   // Helper: controlla se pos è inizio di s/z+consonante
   function isSImpura(frase, pos) {
@@ -2193,9 +2187,18 @@ function raddoppiamentoFonosintattico(frase) {
     return frase[pos] === frase[pos+1];
   }
 
+  // 3a: parole con raddoppiamento iniziale fisso (dio, dea, dei, dee)
+  // Solo se precedute da vocale (non da consonante né da inizio stringa)
+  for (const parola of PAROLE_RADDOPPIO_INIZIALE) {
+    const re = new RegExp('([aeiouàèéòóùìɛɔ|])\\$(' + parola + ')', 'g');
+    frase = frase.replace(re, (m, pre, p, offset) => {
+      const posC = offset + pre.length + 1; // posizione della consonante iniziale raddoppiata
+      logRF.push({ testo: `RF: "${p}" → raddoppiamento iniziale`, _pos: posC });
+      return pre + '$' + p[0] + p;
+    });
+  }
+
   // 3b: RF dopo vocale tonica finale (ossitone)
-  // pattern: VOCALE_ACCENTATA + $ + C (qualsiasi consonante)
-  // escludi: s/z+C (s impura), doppia già presente
   let risultato = '';
   let i = 0;
   while (i < frase.length) {
@@ -2203,7 +2206,9 @@ function raddoppiamentoFonosintattico(frase) {
       const posC = i+2;
       const c = frase[posC];
       if (!isSImpura(frase, posC) && !isGiaDopp(frase, posC) && !VOCALI.has(c)) {
-        // Raddoppia: elimina $ e inserisce C+C
+        // posizione nella stringa risultato dopo aver aggiunto vocale+c+c
+        const posNelRisultato = risultato.length + 1; // +1 perché vocale è a risultato.length, c è a +1
+        logRF.push({ testo: `RF: ossitono → raddoppia "${c}"`, _pos: posNelRisultato });
         risultato += frase[i] + c + c;
         i += 3;
         continue;
@@ -2215,17 +2220,17 @@ function raddoppiamentoFonosintattico(frase) {
   frase = risultato;
 
   // 3c: RF dopo parole attivanti
-  // Le parole attivanti devono essere parole intere:
-  // precedute da inizio stringa, | oppure $
   for (const att of PAROLE_ATTIVANTI) {
     const escaped = att.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    // Lookahead negativo per assicurarci che "att" sia preceduto da $, |, o inizio
     const re = new RegExp('(^|\\$|\\|)(' + escaped + ')\\$(.)', 'g');
     frase = frase.replace(re, (m, pre, parola, c, offset) => {
       const posC = offset + pre.length + parola.length + 1;
       if (isSImpura(frase, posC)) return pre + parola + '$' + c;
       if (isGiaDopp(frase, posC)) return pre + parola + '$' + c;
       if (VOCALI.has(c)) return pre + parola + '$' + c;
+      // posizione nella stringa risultante (senza il $)
+      const posNelRisultato = offset + pre.length + parola.length; // dopo parola attivante, dove compare cc
+      logRF.push({ testo: `RF: "${att}" → raddoppia "${c}"`, _pos: posNelRisultato });
       return pre + parola + c + c;
     });
   }
@@ -2820,7 +2825,36 @@ function trascrivi(testo, wiktFn) {
   // Aggiungi logId univoco a ogni voce di log (separato per sezione)
   const log = [...logScontri, ...logValli];
   log.forEach((e, i) => { if (typeof e === 'object') e.logId = 'a' + i; });
-  const logFenomeni = [...logUtente, ...logRF, ...logJW, ...logJWS, ...logANFull, ...logCronema, ...logSinalefeFull];
+  // Arricchisci logRF con sylIdx usando _pos (posizione nella stringa post-RF, pre-sillabificazione)
+  // Usiamo occIdx: per ogni consonante raddoppiata, troviamo la sua n-esima occorrenza nelle sillabe
+  const logRFFull = logRF.map(entry => {
+    if (typeof entry !== 'object' || entry._pos === undefined) return entry;
+    const { _pos, ...entryClean } = entry;
+    // Estrai la consonante raddoppiata dal testo del log
+    const mC = entry.testo.match(/raddoppia "(.+?)"/);
+    if (!mC) return entryClean;
+    const cons = mC[1];
+    // Conta occorrenze di cons nella stringa sillabificata prima di _pos
+    // Usiamo la stringa finale (sillabe.join('')) per il conteggio
+    const fraSePost = sillabe.join('');
+    // Approssimazione: _pos è nella stringa pre-sillabificazione che ha lunghezza simile
+    // Contiamo le occorrenze di cons nelle prime _pos posizioni della stringa finale
+    const strPrima = fraSePost.slice(0, Math.min(_pos, fraSePost.length));
+    const occPrima = (strPrima.match(new RegExp(cons, 'g')) || []).length;
+    // Trova la occPrima-esima occorrenza di cons nelle sillabe
+    let trovate = 0;
+    for (let i = 0; i < sillabe.length; i++) {
+      const core = sillabe[i].replace(/^[.ˈˌ]+/, '');
+      const occ = (core.match(new RegExp(cons, 'g')) || []).length;
+      for (let k = 0; k < occ; k++) {
+        if (trovate === occPrima) return { ...entryClean, sylIdx: i };
+        trovate++;
+      }
+    }
+    return entryClean;
+  });
+
+  const logFenomeni = [...logUtente, ...logRFFull, ...logJW, ...logJWS, ...logANFull, ...logCronema, ...logSinalefeFull];
   logFenomeni.forEach((e, i) => { if (typeof e === 'object') e.logId = 'f' + i; });
   return { trascrizione, log_scontri: log, log_sinalefe: logFenomeni, richiesta_utente: false, messaggio: '' };
 }
