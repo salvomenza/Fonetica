@@ -226,9 +226,9 @@
 <body>
 <div class="wrap">
   <h1>Laboratorio di trascrizione fonetica</h1>
-  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.3</p>
+  <p class="subtitle">Strumento didattico · <span style="color:var(--accent)">beta</span> <span style="color:var(--muted);font-size:0.7em">(attenzione: può commettere errori!)</span> · v2.62.4</p>
   <div id="app"></div>
-  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.3</footer>
+  <footer>© 2026 S. Menza · DISUM, Università di Catania · v2.62.4</footer>
 </div>
 
 <script>
@@ -2001,12 +2001,14 @@ function elaboraParola(parola, wiktFn) {
       const formaItPr = ris.accentoGrafico.toLowerCase();
       const mappa = {'à':'a','è':'e','é':'e','ò':'o','ó':'o','ù':'u','ì':'i'};
       // Trova la vocale accentata nella forma it-pr e il suo indice tra le vocali
+      // Salta la u di qu (non è vocale sillabica), come facciamo nella parola ortografica
+      const formaItPrPerConteggio = formaItPr.replace(/qu/g, 'q_');
       let indiceVocaleItPr = 0; // quante vocali sono venute prima nella forma it-pr
       let vaItPr = null;
       const tutteVocali = 'aeiouàèéòóùì';
-      for (let k = 0; k < formaItPr.length; k++) {
-        if (mappa[formaItPr[k]]) { vaItPr = formaItPr[k]; break; }
-        if (tutteVocali.includes(formaItPr[k])) indiceVocaleItPr++;
+      for (let k = 0; k < formaItPrPerConteggio.length; k++) {
+        if (mappa[formaItPrPerConteggio[k]]) { vaItPr = formaItPrPerConteggio[k]; break; }
+        if (tutteVocali.includes(formaItPrPerConteggio[k])) indiceVocaleItPr++;
       }
       if (vaItPr !== null) {
         const mappaAccento = {'à':'à','è':'è','é':'é','ò':'ò','ó':'ó','ù':'ù','ì':'ì',
